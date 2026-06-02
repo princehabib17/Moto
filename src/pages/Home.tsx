@@ -102,11 +102,9 @@ const HUDStat = ({ end, suffix, label, accent = '#E11D2A', delay = 0, num = '01'
   const value = end;
 
   const progressRatio = Math.min(value, max) / max;
-  const totalLength = 155; // Precise arc path length of 200deg with radius 74 (M 36,147 A 74,74)
+  const totalLength = 267; // Precise semi-circle arc length of radius 85 (pi * R = 3.14159 * 85 = 267)
   const strokeDashoffset = totalLength - (progressRatio * totalLength);
 
-  // Customize layout specifics in reference image
-  // Dial 01 has bright red numeric display. Others have pure white numeric display to blend with differences.
   const isDialOne = num === '01';
   const displayNumColor = isDialOne ? 'text-[#E11D2A] drop-shadow-[0_0_12px_rgba(225,29,42,0.45)]' : 'text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.15)]';
   const displaySuffixColor = 'text-[#E11D2A]';
@@ -116,110 +114,112 @@ const HUDStat = ({ end, suffix, label, accent = '#E11D2A', delay = 0, num = '01'
       className="relative flex flex-col items-center justify-center select-none pointer-events-auto transition-transform duration-300 hover:scale-[1.03]"
       id={`hud-stat-${num}`}
       style={{
-        width: '260px',
-        height: '210px',
+        width: '280px',
+        height: '220px',
       }}
     >
-      <div className="relative w-[260px] h-[210px] flex flex-col items-center justify-center bg-transparent">
+      {/* SVG Arc Dome - Fits the 280x220 container natively */}
+      <svg 
+        className="absolute inset-0 w-full h-full pointer-events-none" 
+        viewBox="0 0 200 160" 
+        fill="none"
+      >
+        <defs>
+          <mask id={`sweep-mask-${num}`}>
+            <path 
+              d="M 15,147 A 85,85 0 0,1 185,147" 
+              stroke="white" 
+              strokeWidth="7" 
+              strokeLinecap="butt" 
+              fill="none"
+              strokeDasharray="267 267"
+              strokeDashoffset={strokeDashoffset}
+            />
+          </mask>
+        </defs>
         
-        {/* RED DIME Bracket [ 01 ] at the top */}
-        <div className="absolute top-[0px] left-0 right-0 flex justify-center z-10 select-none">
-          <span className="font-mono text-[14px] text-[#E11D2A] font-bold tracking-[0.25em] mr-[-0.25em] uppercase">
-            [ {num} ]
-          </span>
-        </div>
+        {/* subtle ticks next to numbers */}
+        <path d="M 11,149 L 11,153 L 19,153" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="1" />
+        <path d="M 189,149 L 189,153 L 181,153" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="1" />
+        
+        {/* Extreme Outer Accent Bezel */}
+        <path 
+          d="M 11,148 A 89,89 0 0,1 189,148" 
+          stroke="rgba(255, 255, 255, 0.1)" 
+          strokeWidth="1.2" 
+        />
 
-        {/* RPM SVG Gauge Arc Dome */}
-        <svg 
-          className="absolute top-[10px] left-[10px] w-[240px] h-[192px] max-w-none pointer-events-none" 
-          viewBox="0 0 200 160" 
-          fill="none"
-          style={{ transform: 'scale(1.7)', transformOrigin: 'center 80%' }}
-        >
-          <defs>
-            <mask id={`sweep-mask-${num}`}>
-              <path 
-                d="M 36,147 A 74,74 0 0,1 164,147" 
-                stroke="white" 
-                strokeWidth="14" 
-                strokeLinecap="butt" 
-                fill="none"
-                strokeDasharray="155 155"
-                strokeDashoffset={strokeDashoffset}
-              />
-            </mask>
-          </defs>
-          
-          {/* subtle ticks next to numbers */}
-          <path d="M 33,149 L 33,153 L 41,153" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="1" />
-          <path d="M 167,149 L 167,153 L 159,153" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="1" />
-          
-          {/* Extreme Outer Accent Bezel */}
-          <path 
-            d="M 32,148 A 78,78 0 0,1 168,148" 
-            stroke="rgba(255, 255, 255, 0.03)" 
-            strokeWidth="1.2" 
-          />
+        {/* Underlay base track circle (segmented inactive ticks) */}
+        <path 
+          d="M 15,147 A 85,85 0 0,1 185,147" 
+          stroke="rgba(255, 255, 255, 0.12)" 
+          strokeWidth="4.5" 
+          strokeLinecap="butt"
+          strokeDasharray="1.5 2.5" 
+        />
 
-          {/* Underlay base track circle (segmented inactive ticks matching reference image) */}
-          <path 
-            d="M 36,147 A 74,74 0 0,1 164,147" 
-            stroke="rgba(255, 255, 255, 0.08)" 
-            strokeWidth="5" 
-            strokeLinecap="butt"
-            strokeDasharray="2 3" 
-          />
+        {/* Dynamic LED bar sweep (segmented active red ticks overlay) */}
+        <path 
+          d="M 15,147 A 85,85 0 0,1 185,147" 
+          stroke={accent} 
+          strokeWidth="5.5" 
+          strokeLinecap="butt"
+          strokeDasharray="1.5 2.5"
+          mask={`url(#sweep-mask-${num})`}
+          style={{
+            filter: 'drop-shadow(0 0 6px rgba(225, 29, 42, 0.9)) drop-shadow(0 0 1px rgba(255,80,80,0.5))'
+          }}
+        />
 
-          {/* Dynamic LED bar sweep (segmented active red ticks overlay) */}
-          <path 
-            d="M 36,147 A 74,74 0 0,1 164,147" 
-            stroke={accent} 
-            strokeWidth="5.5" 
-            strokeLinecap="butt"
-            strokeDasharray="2 3"
-            mask={`url(#sweep-mask-${num})`}
-            style={{
-              filter: 'drop-shadow(0 0 5px rgba(225, 29, 42, 0.7))'
-            }}
-          />
+        {/* Left / Right Start/End Cap Labels */}
+        <line x1="11" y1="147" x2="19" y2="147" stroke="rgba(255, 255, 255, 0.2)" strokeWidth="1.2" />
+        <line x1="181" y1="147" x2="189" y2="147" stroke="rgba(255, 255, 255, 0.2)" strokeWidth="1.2" />
+      </svg>
 
-          {/* Left / Right Start/End Cap Labels */}
-          <line x1="32" y1="147" x2="40" y2="147" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="1.5" />
-          <line x1="160" y1="147" x2="168" y2="147" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="1.5" />
-        </svg>
+      {/* Ambient background glow inside the arch */}
+      <div className="absolute top-[48%] left-1/2 -translate-x-1/2 -translate-y-1/2 h-20 w-28 bg-[#E11D2A]/[0.02] rounded-full blur-2xl pointer-events-none" />
 
-        {/* Ambient background glow inside the arch */}
-        <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 h-20 w-28 bg-[#E11D2A]/[0.025] rounded-full blur-2xl pointer-events-none" />
+      {/* Top Badge (e.g. [ 01 ]) centered above the dome apex */}
+      <div className="absolute top-[52px] left-0 right-0 flex justify-center pointer-events-none z-10 select-none">
+        <span className="font-mono text-[8.5px] font-bold text-gray-500 tracking-[0.25em] uppercase">
+          [ <span style={{ color: num === '01' ? accent : '#fff' }}>{num}</span> ]
+        </span>
+      </div>
 
-        {/* Big numeric data display vertically centered inside the dome */}
-        <div className="absolute top-[105px] left-0 right-0 flex items-baseline justify-center gap-2 z-10 px-2 select-none">
-          <span className={`font-industrial text-[61px] leading-[0.75] tracking-tighter font-black ${displayNumColor}`}>
+      {/* Text Container - Nestled inside the dome */}
+      <div 
+        className="absolute left-0 right-0 flex flex-col items-center justify-center pointer-events-none z-10"
+        style={{
+          top: '88px',
+          height: '92px',
+        }}
+      >
+        
+        {/* Big numeric data display */}
+        <div className="flex items-baseline justify-center gap-1 select-none pointer-events-auto">
+          <span className={`font-industrial text-[36px] leading-[0.75] font-black ${displayNumColor}`}>
             {value}
           </span>
-          <span className={`font-mono text-[16px] font-black tracking-widest ${displaySuffixColor} uppercase select-none pb-[5px]`}>
+          <span className={`font-mono text-[11px] font-black tracking-widest ${displaySuffixColor} uppercase pb-[2px]`}>
             {suffix}
           </span>
         </div>
 
-        {/* Precise human metric label at the base of the gauge layout */}
-        <div className="absolute top-[170px] left-0 right-0 flex flex-col items-center justify-center z-10 px-4">
-          <span className="font-sans text-[11px] text-[#8e8d88] font-bold tracking-[0.25em] text-center uppercase select-none mr-[-0.25em]">
+        {/* Precise human metric label */}
+        <div className="flex flex-col items-center justify-center px-4 mt-2 select-none pointer-events-auto">
+          <span className="font-sans text-[9px] text-[#8e8d88] font-bold tracking-[0.2em] text-center uppercase mr-[-0.2em]">
             {label}
           </span>
           
           {/* Tech horizontal bracket structure */}
-          <div className="relative w-[110px] h-[4px] mt-1.5 flex items-center justify-center">
-            {/* The horizontal line */}
+          <div className="relative w-[70px] h-[4px] mt-1.5 flex items-center justify-center opacity-80">
             <div className="absolute left-0 right-0 h-[1px] bg-white/10"></div>
-            {/* Left bound tick */}
-            <div className="absolute left-0 top-0 w-[1px] h-[3px] bg-white/25"></div>
-            {/* Right bound tick */}
-            <div className="absolute right-0 top-0 w-[1px] h-[3px] bg-white/25"></div>
-            
-            {/* Center tick indicator dot */}
+            <div className="absolute left-0 top-0 w-[1px] h-[3px] bg-white/20"></div>
+            <div className="absolute right-0 top-0 w-[1px] h-[3px] bg-white/20"></div>
             <div className="absolute w-[3px] h-[3px] bg-[#E11D2A] rounded-full"></div>
           </div>
         </div>
+
       </div>
     </div>
   );
@@ -234,6 +234,7 @@ export default function Home() {
   const heroExtrasRef = useRef<HTMLDivElement>(null);
 
   const [scrollRatio, setScrollRatio] = useState(0);
+  const [machineOpacity, setMachineOpacity] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
@@ -243,30 +244,31 @@ export default function Home() {
   const widthScale = (windowWidth - 40) / 1200;
   const heightScale = (windowHeight - 80) / 1000;
   const scale = isSmallMobile 
-    ? Math.min(0.58, heightScale)
-    : Math.min(2, widthScale * 2, heightScale * 2);
+    ? Math.min((windowWidth - 24) / 800, heightScale * 2.0)
+    : Math.min(1.6, (windowWidth - 40) / 1200, heightScale * 1.5);
 
-  // HUD Coordinates for Desktop & Mobile
+  // HUD Coordinates for Desktop & Mobile - Spaced out to prevent overlap
   const x1 = 600; // Dry Weight (center apex)
-  const y1 = isSmallMobile ? 205 : 290;
+  const y1 = isSmallMobile ? 120 : 140;
 
-  const x2 = isSmallMobile ? 405 : 230; // Rear Wheel Power (left wing)
-  const y2 = isSmallMobile ? 330 : 425;
+  const x2 = isSmallMobile ? 240 : 180; // Rear Wheel Power (left wing)
+  const y2 = isSmallMobile ? 420 : 450;
 
-  const x3 = isSmallMobile ? 795 : 970; // Max Torque (right wing)
-  const y3 = isSmallMobile ? 330 : 425;
+  const x3 = isSmallMobile ? 960 : 1020; // Max Torque (right wing)
+  const y3 = isSmallMobile ? 420 : 450;
 
   const x4 = 600; // IQ Score (center lower dome)
-  const y4 = isSmallMobile ? 380 : 475;
+  const y4 = isSmallMobile ? 700 : 750;
 
   const ctrlLeftX = (x2 + x1) / 2;
   const ctrlRightX = (x1 + x3) / 2;
-  const ctrlLeftY1 = isSmallMobile ? 220 : 315;
-  const ctrlRightY1 = isSmallMobile ? 220 : 315;
-  const ctrlLeftY2 = isSmallMobile ? 400 : 495;
-  const ctrlRightY2 = isSmallMobile ? 400 : 495;
+  const ctrlLeftY1 = y1 + (y2 - y1) * 0.4;
+  const ctrlRightY1 = y1 + (y2 - y1) * 0.4;
+  const ctrlLeftY2 = y2 + (y4 - y2) * 0.6;
+  const ctrlRightY2 = y2 + (y4 - y2) * 0.6;
   const [throttle, setThrottle] = useState(2); // Starts at idle 2%
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [activeHotspot, setActiveHotspot] = useState<'engine' | 'chassis'>('engine');
   const lastScrollY = useRef(0);
   const lastScrollTime = useRef(Date.now());
 
@@ -292,6 +294,23 @@ export default function Home() {
 
       lastScrollY.current = curY;
       lastScrollTime.current = curTime;
+
+      // Calculate Section 3 (THE MACHINE) overlay opacity based on its viewport position
+      const machineEl = document.getElementById('section-machine');
+      if (machineEl) {
+        const rect = machineEl.getBoundingClientRect();
+        const viewHeight = window.innerHeight;
+        const entryDist = viewHeight - rect.top;
+        const exitDist = rect.bottom;
+        
+        let opacity = 0;
+        if (rect.top < viewHeight && rect.bottom > 0) {
+          const entryP = Math.max(0, Math.min(1, (viewHeight - rect.top) / (viewHeight * 0.4)));
+          const exitP = Math.max(0, Math.min(1, rect.bottom / (viewHeight * 0.4)));
+          opacity = Math.min(entryP, exitP);
+        }
+        setMachineOpacity(opacity);
+      }
     };
     
     const handleResize = () => {
@@ -329,17 +348,18 @@ export default function Home() {
     };
   }, []);
 
-  const getOverlayOpacity = (ratio: number) => {
-    if (ratio < 0.32 || ratio > 0.78) return 0;
-    if (ratio >= 0.45 && ratio <= 0.65) return 1;
-    if (ratio < 0.45) {
-      return (ratio - 0.32) / (0.45 - 0.32);
-    } else {
-      return 1 - (ratio - 0.65) / (0.78 - 0.65);
-    }
-  };
+  useEffect(() => {
+    // Parallax tracking for the blueprint overlay to match the background video
+    gsap.to('#blueprint-overlay-parallax', {
+      x: mousePos.x * -30,
+      y: mousePos.y * -30,
+      duration: 1.5,
+      ease: 'power2.out',
+      overwrite: 'auto',
+    });
+  }, [mousePos]);
 
-  const overlayOpacity = getOverlayOpacity(scrollRatio);
+  const overlayOpacity = machineOpacity;
 
   const getInterpolatedPoints = () => {
     const t = Math.max(0, Math.min(1, (scrollRatio - 0.35) / (0.70 - 0.35)));
@@ -536,7 +556,7 @@ export default function Home() {
                     document.querySelector('#section-machine')?.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
-                className="bg-[#E11D2A] text-white px-6 sm:px-8 py-3.5 sm:py-4 text-[10px] sm:text-[11px] font-black tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(225,29,42,0.3)] hover:shadow-none cursor-pointer"
+                className="btn-active-scale bg-[#E11D2A] text-white px-6 sm:px-8 py-3.5 sm:py-4 text-[10px] sm:text-[11px] font-black tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(225,29,42,0.3)] hover:shadow-none cursor-pointer"
               >
                 EXPLORE MACHINE ⟶
               </button>
@@ -597,6 +617,41 @@ export default function Home() {
 
           </div>
 
+          {/* Content — right column: premium technical telemetry specs readout */}
+          <div className="hidden lg:flex flex-col items-start text-left w-full max-w-[340px] border border-white/5 bg-black/15 backdrop-blur-md p-6 relative select-none pointer-events-none animate-fade-in delay-200">
+            {/* Red border corners */}
+            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#E11D2A]"></div>
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#E11D2A]"></div>
+            
+            <div className="flex items-center gap-2 mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E11D2A] animate-pulse"></span>
+              <span className="font-mono text-[8px] tracking-[0.35em] text-[#E11D2A] uppercase font-bold">[ SPECIFICATION_DATA // V.01 ]</span>
+            </div>
+            
+            <div className="flex flex-col gap-4 w-full">
+              <div className="flex justify-between items-baseline border-b border-white/5 pb-2">
+                <span className="font-sans text-[9px] text-gray-500 tracking-wider font-bold">WHEELBASE</span>
+                <span className="font-mono text-xs text-white font-bold">68.0 IN / 1727 MM</span>
+              </div>
+              <div className="flex justify-between items-baseline border-b border-white/5 pb-2">
+                <span className="font-sans text-[9px] text-gray-500 tracking-wider font-bold">RAKE / TRAIL</span>
+                <span className="font-mono text-xs text-white font-bold">30° / 5.0 IN</span>
+              </div>
+              <div className="flex justify-between items-baseline border-b border-white/5 pb-2">
+                <span className="font-sans text-[9px] text-gray-500 tracking-wider font-bold">FRONT SUSPENSION</span>
+                <span className="font-mono text-xs text-white font-bold">ÖHLINS FGRT SERIES 48MM</span>
+              </div>
+              <div className="flex justify-between items-baseline border-b border-white/5 pb-2">
+                <span className="font-sans text-[9px] text-gray-500 tracking-wider font-bold">REAR SUSPENSION</span>
+                <span className="font-mono text-xs text-white font-bold">ÖHLINS PRO-LINK MONOSHOCK</span>
+              </div>
+              <div className="flex justify-between items-baseline border-b border-white/5 pb-2">
+                <span className="font-sans text-[9px] text-gray-500 tracking-wider font-bold">DISPLACEMENT</span>
+                <span className="font-mono text-xs text-white font-bold">124 CI / 2032 CC</span>
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </section>
@@ -611,116 +666,207 @@ export default function Home() {
         {/* Dynamic, responsive viewport blueprint overlay */}
         <div 
           id="blueprint-overlay"
-          className="absolute inset-0 w-full h-full pointer-events-none z-25 select-none opacity-100 visible"
+          className="fixed inset-0 w-full h-full pointer-events-none z-25 select-none transition-opacity duration-150"
+          style={{
+            opacity: overlayOpacity,
+            visibility: overlayOpacity > 0 ? 'visible' : 'hidden',
+          }}
         >
-          {/* Embedded keyframe animations for radar targets */}
-          <style dangerouslySetInnerHTML={{ __html: `
-            @keyframes ping-tech {
-              0% { transform: scale(0.6); opacity: 1; }
-              100% { transform: scale(3.5); opacity: 0; }
-            }
-            .animate-ping-tech {
-              animation: ping-tech 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-            }
-          `}} />
-
-          {/* Removed glowing neon path vectors as requested */}
-
-          {/* Point 1: V-Twin Engine Pulsator Node */}
+          {/* Parallax wrapper matching the video background wrapper scale & parallax */}
           <div 
-            className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-75 diagnostic-dot z-30"
-            style={{ left: `${pts.engineX}%`, top: `${pts.engineY}%` }}
+            id="blueprint-overlay-parallax"
+            className="absolute inset-0 w-full h-full scale-[1.05] origin-center pointer-events-none"
           >
-            <div className="w-1.5 h-1.5 bg-[#E11D2A] relative z-10 shadow-[0_0_8px_#E11D2A]"></div>
-            <div className="absolute w-5 h-5 border border-[#E11D2A]/60 rounded-full z-0 flex items-center justify-center">
-              <div className="w-[1px] h-full bg-[#E11D2A]/40"></div>
-              <div className="w-full h-[1px] bg-[#E11D2A]/40 absolute"></div>
-            </div>
-            <div className="absolute w-4 h-4 border border-[#E11D2A] rounded-full z-0"></div>
-          </div>
+            {/* Viewport overlay matching background video scale, aspect-ratio, and translate */}
+            <div 
+              className={`pointer-events-none ${isMobile ? "video-fit-9-16" : "video-fit-16-9"}`}
+              style={{
+                transform: `translate(-50%, calc(-50% + ${isMobile ? '10vh' : '5vh'})) scale(1.35)`,
+              }}
+            >
+              {/* Embedded keyframe animations for blueprint elements */}
+              <style dangerouslySetInnerHTML={{ __html: `
+                @keyframes ping-tech {
+                  0% { transform: scale(0.6); opacity: 1; }
+                  100% { transform: scale(2.8); opacity: 0; }
+                }
+                .animate-ping-tech {
+                  animation: ping-tech 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+                }
+                .glow-active {
+                  box-shadow: 0 0 15px rgba(225, 29, 42, 0.4);
+                }
+              `}} />
 
-          {/* Point 2: Frame Chassis Pulsator Node */}
-          <div 
-            className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-75 diagnostic-dot z-30"
-            style={{ left: `${pts.chassisX}%`, top: `${pts.chassisY}%` }}
-          >
-            <div className="w-1.5 h-1.5 bg-[#E11D2A] relative z-10 shadow-[0_0_8px_#E11D2A]"></div>
-            <div className="absolute w-5 h-5 border border-[#E11D2A]/60 rounded-full z-0 flex items-center justify-center">
-              <div className="w-[1px] h-full bg-[#E11D2A]/40"></div>
-              <div className="w-full h-[1px] bg-[#E11D2A]/40 absolute"></div>
-            </div>
-            <div className="absolute w-4 h-4 border border-[#E11D2A] rounded-full z-0"></div>
-          </div>
+              {/* ============ GLOWING SVG CONNECTOR PATHS (100% DYNAMIC TO SCROLL INTERPOLATION) ============ */}
+              <svg className="absolute inset-0 w-full h-full pointer-events-none z-20" viewBox="0 0 100 100" preserveAspectRatio="none">
+                {/* Engine connector line */}
+                <path 
+                  d={isMobile ? `M ${pts.engineX} ${pts.engineY} L ${pts.engineX} 76` : `M ${pts.engineX} ${pts.engineY} L ${annLeftJointX} ${annLeftY} L ${annLeftX + 5} ${annLeftY}`} 
+                  stroke="#E11D2A" 
+                  strokeWidth="0.15" 
+                  fill="none" 
+                  opacity={activeHotspot === 'engine' ? 0.75 : (isMobile ? 0 : 0.25)}
+                  className="transition-all duration-300"
+                  strokeDasharray="0.5 0.5"
+                />
+                {/* Chassis connector line */}
+                <path 
+                  d={isMobile ? `M ${pts.chassisX} ${pts.chassisY} L ${pts.chassisX} 76` : `M ${pts.chassisX} ${pts.chassisY} L ${annRightJointX} ${annRightY} L ${annRightX - 5} ${annRightY}`} 
+                  stroke="#E11D2A" 
+                  strokeWidth="0.15" 
+                  fill="none" 
+                  opacity={activeHotspot === 'chassis' ? 0.75 : (isMobile ? 0 : 0.25)}
+                  className="transition-all duration-300"
+                  strokeDasharray="0.5 0.5"
+                />
+              </svg>
 
-          {/* Left Tech Annotation (Engine) - Placed in Left Negative Space closer to Engine */}
-          <div 
-            className="absolute pointer-events-auto flex flex-col items-start text-left z-35 select-none transition-all duration-300 diagnostic-text-left"
-            style={{
-              left: `${annLeftX}%`,
-              top: `${annLeftY}%`,
-              transform: 'translateY(-50%)',
-              width: isMobile ? '68%' : '26%',
-              maxWidth: '300px',
-            }}
-          >
-            <div className="relative flex flex-col p-3.5 sm:p-4 bg-black/20 backdrop-blur-sm border border-white/10 rounded-sm shadow-[0_0_15px_rgba(0,0,0,0.6)]">
-              {/* Reticle / decorative corner markers */}
-              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-[#E11D2A]"></div>
-              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-[#E11D2A]"></div>
-              
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-1.5 h-1.5 bg-[#E11D2A] rounded-full shadow-[0_0_5px_#E11D2A]"></div>
-                <div className="font-mono text-[8.5px] sm:text-[9px] tracking-[0.35em] text-[#E11D2A] uppercase font-bold disable-select">
-                  [ SYS_01 // ENGINE_MD ]
+              {/* ============ INTERACTIVE DIAGNOSTIC HOTSPOTS ============ */}
+              {/* Point 1: V-Twin Engine Hotspot */}
+              <div 
+                className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-75 cursor-pointer pointer-events-auto z-30 group"
+                style={{ left: `${pts.engineX}%`, top: `${pts.engineY}%` }}
+                onClick={() => setActiveHotspot('engine')}
+                onMouseEnter={() => setActiveHotspot('engine')}
+              >
+                <div className={`w-2.5 h-2.5 rounded-full relative z-10 transition-colors duration-300 ${activeHotspot === 'engine' ? 'bg-[#E11D2A] scale-110 shadow-[0_0_12px_#E11D2A]' : 'bg-white/80 group-hover:bg-[#E11D2A]'}`}></div>
+                <div className={`absolute w-7 h-7 border border-dashed rounded-full z-0 transition-all duration-500 ease-out ${activeHotspot === 'engine' ? 'border-[#E11D2A] rotate-45 scale-100 opacity-100' : 'border-white/30 rotate-0 scale-75 opacity-40 group-hover:opacity-70'}`}></div>
+                <div className={`absolute w-9 h-9 border rounded-full z-0 ${activeHotspot === 'engine' ? 'border-[#E11D2A]/40 animate-ping-tech' : 'border-white/10'}`}></div>
+              </div>
+
+              {/* Point 2: Frame Chassis Hotspot */}
+              <div 
+                className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center transition-all duration-75 cursor-pointer pointer-events-auto z-30 group"
+                style={{ left: `${pts.chassisX}%`, top: `${pts.chassisY}%` }}
+                onClick={() => setActiveHotspot('chassis')}
+                onMouseEnter={() => setActiveHotspot('chassis')}
+              >
+                <div className={`w-2.5 h-2.5 rounded-full relative z-10 transition-colors duration-300 ${activeHotspot === 'chassis' ? 'bg-[#E11D2A] scale-110 shadow-[0_0_12px_#E11D2A]' : 'bg-white/80 group-hover:bg-[#E11D2A]'}`}></div>
+                <div className={`absolute w-7 h-7 border border-dashed rounded-full z-0 transition-all duration-500 ease-out ${activeHotspot === 'chassis' ? 'border-[#E11D2A] rotate-45 scale-100 opacity-100' : 'border-white/30 rotate-0 scale-75 opacity-40 group-hover:opacity-70'}`}></div>
+                <div className={`absolute w-9 h-9 border rounded-full z-0 ${activeHotspot === 'chassis' ? 'border-[#E11D2A]/40 animate-ping-tech' : 'border-white/10'}`}></div>
+              </div>
+
+              {/* ============ DESKTOP SPEC OVERLAYS (LEFT & RIGHT) ============ */}
+              {/* Left Tech Annotation (Engine) */}
+              <div 
+                className={`absolute pointer-events-auto flex flex-col items-start text-left z-25 select-none transition-all duration-300 ${isMobile ? 'hidden' : 'flex'}`}
+                style={{
+                  left: `${annLeftX}%`,
+                  top: `${annLeftY}%`,
+                  transform: 'translateY(-50%)',
+                  width: '26%',
+                  maxWidth: '300px',
+                }}
+              >
+                <div className={`relative flex flex-col p-4 backdrop-blur-md rounded-sm border transition-all duration-300 ${activeHotspot === 'engine' ? 'bg-black/35 border-[#E11D2A] shadow-[0_0_20px_rgba(225,29,42,0.15)] opacity-100 scale-[1.02] z-30' : 'bg-black/10 border-white/5 opacity-40 scale-100 z-20 hover:opacity-70'}`}
+                     onClick={() => setActiveHotspot('engine')}
+                     style={{ cursor: 'pointer' }}>
+                  <div className={`absolute top-0 left-0 w-2 h-2 border-t border-l transition-colors duration-300 ${activeHotspot === 'engine' ? 'border-[#E11D2A]' : 'border-white/20'}`}></div>
+                  <div className={`absolute bottom-0 right-0 w-2 h-2 border-b border-r transition-colors duration-300 ${activeHotspot === 'engine' ? 'border-[#E11D2A]' : 'border-white/20'}`}></div>
+                  
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_5px_#E11D2A] ${activeHotspot === 'engine' ? 'bg-[#E11D2A] animate-pulse' : 'bg-white/40'}`}></div>
+                    <div className={`font-mono text-[8.5px] tracking-[0.35em] uppercase font-bold transition-colors duration-300 ${activeHotspot === 'engine' ? 'text-[#E11D2A]' : 'text-gray-400'}`}>
+                      [ SYS_01 // ENGINE_MD ]
+                    </div>
+                  </div>
+                  
+                  <h3 className="font-industrial text-xl text-white uppercase tracking-wider leading-none m-0">
+                    124CI V-TWIN
+                  </h3>
+                  
+                  <div className={`w-full h-[1px] my-2.5 transition-all duration-300 ${activeHotspot === 'engine' ? 'bg-[#E11D2A]/50' : 'bg-white/10'}`}></div>
+                  
+                  <p className="font-sans text-[9px] text-gray-300 font-medium tracking-widest uppercase leading-snug">
+                    2032CC HIGH-OUTPUT DOWNDRAFT WITH INTEGRATED INDUCTION ACQUISITION.
+                  </p>
                 </div>
               </div>
-              
-              <h3 className="font-industrial text-xl sm:text-2xl text-white uppercase tracking-wider leading-none m-0">
-                124CI V-TWIN
-              </h3>
-              
-              <div className="w-full h-[1px] bg-gradient-to-r from-[#E11D2A]/50 to-transparent my-2.5"></div>
-              
-              <p className="font-sans text-[9px] sm:text-[10px] text-gray-300 font-medium tracking-widest uppercase leading-snug">
-                2032CC HIGH-OUTPUT DOWNDRAFT WITH INTEGRATED INDUCTION ACQUISITION.
-              </p>
+
+              {/* Right Tech Annotation (Chassis) */}
+              <div 
+                className={`absolute pointer-events-auto flex flex-col items-end text-right z-25 select-none transition-all duration-300 ${isMobile ? 'hidden' : 'flex'}`}
+                style={{
+                  right: `${100 - annRightX}%`,
+                  top: `${annRightY}%`,
+                  transform: 'translateY(-50%)',
+                  width: '26%',
+                  maxWidth: '300px',
+                }}
+              >
+                <div className={`relative flex flex-col items-end text-right p-4 backdrop-blur-md rounded-sm border transition-all duration-300 ${activeHotspot === 'chassis' ? 'bg-black/35 border-[#E11D2A] shadow-[0_0_20px_rgba(225,29,42,0.15)] opacity-100 scale-[1.02] z-30' : 'bg-black/10 border-white/5 opacity-40 scale-100 z-20 hover:opacity-70'}`}
+                     onClick={() => setActiveHotspot('chassis')}
+                     style={{ cursor: 'pointer' }}>
+                  <div className={`absolute top-0 right-0 w-2 h-2 border-t border-r transition-colors duration-300 ${activeHotspot === 'chassis' ? 'border-[#E11D2A]' : 'border-white/20'}`}></div>
+                  <div className={`absolute bottom-0 left-0 w-2 h-2 border-b border-l transition-colors duration-300 ${activeHotspot === 'chassis' ? 'border-[#E11D2A]' : 'border-white/20'}`}></div>
+                  
+                  <div className="flex items-center gap-2 mb-2 flex-row-reverse">
+                    <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_5px_#E11D2A] ${activeHotspot === 'chassis' ? 'bg-[#E11D2A] animate-pulse' : 'bg-white/40'}`}></div>
+                    <div className={`font-mono text-[8.5px] tracking-[0.35em] uppercase font-bold transition-colors duration-300 ${activeHotspot === 'chassis' ? 'text-[#E11D2A]' : 'text-gray-400'}`}>
+                      [ SCAN_02 // FRAME_LOCK ]
+                    </div>
+                  </div>
+                  
+                  <h3 className="font-industrial text-xl text-white uppercase tracking-wider leading-none m-0">
+                    BILLET ALUMINUM
+                  </h3>
+                  
+                  <div className={`w-full h-[1px] my-2.5 transition-all duration-300 ${activeHotspot === 'chassis' ? 'bg-[#E11D2A]/50' : 'bg-white/10'}`}></div>
+                  
+                  <p className="font-sans text-[9px] text-gray-300 font-medium tracking-widest uppercase leading-snug">
+                    MACHINED ENTIRELY IN-HOUSE FROM SOLID BLOCKS OF AEROSPACE ALLOY.
+                  </p>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          {/* Right Tech Annotation (Chassis) - Placed in Right Negative Space closer to Chassis */}
-          <div 
-            className="absolute pointer-events-auto flex flex-col items-end text-right z-35 select-none transition-all duration-300 diagnostic-text-right"
-            style={{
-              right: `${100 - annRightX}%`,
-              top: `${annRightY}%`,
-              transform: 'translateY(-50%)',
-              width: isMobile ? '68%' : '26%',
-              maxWidth: '300px',
-            }}
-          >
-            <div className="relative flex flex-col items-end text-right p-3.5 sm:p-4 bg-black/20 backdrop-blur-sm border border-white/10 rounded-sm shadow-[0_0_15px_rgba(0,0,0,0.6)]">
-              {/* Reticle / decorative corner markers */}
-              <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-[#E11D2A]"></div>
-              <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-[#E11D2A]"></div>
-              
-              <div className="flex items-center gap-2 mb-2 flex-row-reverse">
-                <div className="w-1.5 h-1.5 bg-[#E11D2A] rounded-full shadow-[0_0_5px_#E11D2A]"></div>
-                <div className="font-mono text-[8.5px] sm:text-[9px] tracking-[0.35em] text-[#E11D2A] uppercase font-bold disable-select">
-                  [ SCAN_02 // FRAME_LOCK ]
-                </div>
+          {/* ============ MOBILE Spec Callout bottom drawer panel ============ */}
+          {isMobile && (
+            <div className="absolute bottom-[17%] left-4 right-4 z-35 flex justify-center pointer-events-auto animate-fade-in">
+              <div className="relative w-full max-w-[340px] p-4 bg-black/40 backdrop-blur-md border border-[#E11D2A] rounded-sm shadow-[0_0_20px_rgba(225,29,42,0.2)]">
+                {/* Corner markers */}
+                <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t-2 border-l-2 border-[#E11D2A]"></div>
+                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b-2 border-r-2 border-[#E11D2A]"></div>
+                
+                {activeHotspot === 'engine' ? (
+                  <div className="text-left">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-1.5 h-1.5 bg-[#E11D2A] rounded-full shadow-[0_0_5px_#E11D2A] animate-pulse"></div>
+                      <div className="font-mono text-[9px] tracking-[0.3em] text-[#E11D2A] uppercase font-bold">
+                        [ SYS_01 // ENGINE_MD ]
+                      </div>
+                    </div>
+                    <h3 className="font-industrial text-xl text-white uppercase tracking-wider leading-none m-0">
+                      124CI V-TWIN
+                    </h3>
+                    <div className="w-full h-[1px] bg-gradient-to-r from-[#E11D2A]/50 to-transparent my-2"></div>
+                    <p className="font-sans text-[9px] text-gray-300 font-medium tracking-widest uppercase leading-snug">
+                      2032CC HIGH-OUTPUT DOWNDRAFT WITH INTEGRATED INDUCTION ACQUISITION.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-left">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-1.5 h-1.5 bg-[#E11D2A] rounded-full shadow-[0_0_5px_#E11D2A] animate-pulse"></div>
+                      <div className="font-mono text-[9px] tracking-[0.3em] text-[#E11D2A] uppercase font-bold">
+                        [ SCAN_02 // FRAME_LOCK ]
+                      </div>
+                    </div>
+                    <h3 className="font-industrial text-xl text-white uppercase tracking-wider leading-none m-0">
+                      BILLET ALUMINUM
+                    </h3>
+                    <div className="w-full h-[1px] bg-gradient-to-r from-[#E11D2A]/50 to-transparent my-2"></div>
+                    <p className="font-sans text-[9px] text-gray-300 font-medium tracking-widest uppercase leading-snug">
+                      MACHINED ENTIRELY IN-HOUSE FROM SOLID BLOCKS OF AEROSPACE ALLOY.
+                    </p>
+                  </div>
+                )}
               </div>
-              
-              <h3 className="font-industrial text-xl sm:text-2xl text-white uppercase tracking-wider leading-none m-0">
-                BILLET ALUMINUM
-              </h3>
-              
-              <div className="w-full h-[1px] bg-gradient-to-l from-[#E11D2A]/50 to-transparent my-2.5"></div>
-              
-              <p className="font-sans text-[9px] sm:text-[10px] text-gray-300 font-medium tracking-widest uppercase leading-snug">
-                MACHINED ENTIRELY IN-HOUSE FROM SOLID BLOCKS OF AEROSPACE ALLOY.
-              </p>
             </div>
-          </div>
+          )}
 
         </div>
 
@@ -780,11 +926,11 @@ export default function Home() {
           >
             {/* The scaled container width is fixed to 1200px and matches the original design coordinate system */}
             <div 
-              className="absolute origin-center select-none pointer-events-auto"
+              className="absolute left-1/2 top-1/2 select-none pointer-events-auto"
               style={{
                 width: '1200px',
                 height: '1000px',
-                transform: `scale(${scale})`,
+                transform: `translate(-50%, -50%) scale(${scale})`,
                 willChange: 'transform',
               }}
             >
