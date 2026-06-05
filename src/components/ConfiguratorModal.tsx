@@ -120,8 +120,8 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
         {/* Top bar header */}
         <div className="relative z-10 px-6 py-5 border-b border-white/5 flex items-center justify-between">
           <div>
-            <h3 className="font-anton text-xl tracking-wider text-white uppercase m-0 leading-none">Bespoke Configurator</h3>
-            <span className="font-mono text-[9px] text-[#E11D2A] uppercase tracking-[0.25em] font-medium block mt-1">Series 04 / machined precision</span>
+            <h3 className="font-anton text-h3 tracking-wider text-white uppercase m-0 leading-none">Bespoke Configurator</h3>
+            <h6 className="font-mono text-nano text-[#E11D2A] uppercase tracking-[0.25em] font-medium block mt-1">Series 04 / machined precision</h6>
           </div>
           <button 
             onClick={onClose}
@@ -142,22 +142,22 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                 {/* 1. SELECT BASE MOTOCYCLE */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <span className="font-anton text-[#E11D2A] text-lg">01</span>
-                    <h4 className="font-mono text-xs font-black uppercase tracking-wider text-white">Chassis Series</h4>
+                    <span className="font-anton text-[#E11D2A] text-h3">01</span>
+                    <h6 className="font-mono text-micro font-black uppercase tracking-wider text-white">Chassis Series</h6>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     {models.map((m) => (
                       <button
                         key={m.name}
                         onClick={() => setModel(m.name)}
-                        className={`p-4 rounded-xl text-left border transition-all ${
+                        className={`btn-active-scale p-4 rounded-xl text-left border transition-all ${
                           model === m.name
                             ? 'bg-white/5 border-[#E11D2A] text-white shadow-[0_0_15px_rgba(225,29,42,0.15)]'
                             : 'bg-black/30 border-white/5 text-gray-400 hover:border-white/10 hover:text-gray-200'
                         }`}
                       >
-                        <h5 className="font-bold text-sm tracking-wide mb-1 select-none">{m.name}</h5>
-                        <div className="font-mono text-[10px] opacity-75">
+                        <h5 className="font-bold text-body tracking-wide mb-1 select-none">{m.name}</h5>
+                        <div className="font-mono text-body opacity-75">
                           ${m.basePrice.toLocaleString()}
                         </div>
                       </button>
@@ -168,15 +168,15 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                 {/* 2. CHASSIS FINISH */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <span className="font-anton text-[#E11D2A] text-lg">02</span>
-                    <h4 className="font-mono text-xs font-black uppercase tracking-wider text-white">Aluminum Finish</h4>
+                    <span className="font-anton text-[#E11D2A] text-h3">02</span>
+                    <h6 className="font-mono text-micro font-black uppercase tracking-wider text-white">Aluminum Finish</h6>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {finishes.map((f) => (
                       <button
                         key={f.name}
                         onClick={() => setFinish(f.name)}
-                        className={`p-3 rounded-xl border flex flex-col items-start gap-2 transition-all text-left ${
+                        className={`btn-active-scale p-3 rounded-xl border flex flex-col items-start gap-2 transition-all text-left ${
                           finish === f.name
                             ? 'bg-white/5 border-[#E11D2A] text-white'
                             : 'bg-black/30 border-white/5 text-gray-400 hover:border-white/10'
@@ -184,8 +184,8 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                       >
                         <span className="w-5 h-5 rounded-full border border-white/20" style={{ backgroundColor: f.colorCode }} />
                         <div>
-                          <div className="font-bold text-xs leading-tight">{f.name}</div>
-                          <div className="font-mono text-[9px] opacity-75 mt-0.5">
+                          <div className="font-bold text-body leading-tight">{f.name}</div>
+                          <div className="font-mono text-body opacity-75 mt-0.5">
                             {f.price === 0 ? 'Included' : `+$${f.price.toLocaleString()}`}
                           </div>
                         </div>
@@ -197,15 +197,15 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                 {/* 3. WHEEL CONFIGURATION */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <span className="font-anton text-[#E11D2A] text-lg">03</span>
-                    <h4 className="font-mono text-xs font-black uppercase tracking-wider text-white">BST Rim Setup</h4>
+                    <span className="font-anton text-[#E11D2A] text-h3">03</span>
+                    <h6 className="font-mono text-micro font-black uppercase tracking-wider text-white">BST Rim Setup</h6>
                   </div>
                   <div className="space-y-2">
                     {wheelOptions.map((w) => (
                       <button
                         key={w.name}
                         onClick={() => setWheels(w.name)}
-                        className={`w-full p-3 px-4 rounded-xl text-left border flex items-center justify-between gap-3 transition-all ${
+                        className={`btn-active-scale w-full p-3 px-4 rounded-xl text-left border flex items-center justify-between gap-3 transition-all ${
                           wheels === w.name
                             ? 'bg-white/5 border-[#E11D2A] text-white'
                             : 'bg-black/30 border-white/5 text-gray-400 hover:border-white/10'
@@ -216,13 +216,13 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                             {wheels === w.name && <Check size={10} className="text-[#E11D2A]" />}
                           </div>
                           <div>
-                            <span className="font-bold text-xs">{w.name}</span>
-                            <span className="text-[10px] opacity-60 ml-2 font-mono">
+                            <span className="font-bold text-body">{w.name}</span>
+                            <h6 className="text-nano opacity-60 ml-2 font-mono inline-block">
                               {w.weightMod === 0 ? 'Lightest' : `+${w.weightMod} lbs`}
-                            </span>
+                            </h6>
                           </div>
                         </div>
-                        <span className="font-mono text-xs">
+                        <span className="font-mono text-body">
                           {w.price === 0 ? 'Standard' : `+$${w.price}`}
                         </span>
                       </button>
@@ -233,15 +233,15 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                 {/* 4. EXHAUST SPECIFICATION */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <span className="font-anton text-[#E11D2A] text-lg">04</span>
-                    <h4 className="font-mono text-xs font-black uppercase tracking-wider text-white">Powerplant Pipe & Tuning</h4>
+                    <span className="font-anton text-[#E11D2A] text-h3">04</span>
+                    <h6 className="font-mono text-micro font-black uppercase tracking-wider text-white">Powerplant Pipe & Tuning</h6>
                   </div>
                   <div className="space-y-2">
                     {exhaustOptions.map((e) => (
                       <button
                         key={e.name}
                         onClick={() => setExhaust(e.name)}
-                        className={`w-full p-3 px-4 rounded-xl text-left border flex items-center justify-between gap-3 transition-all ${
+                        className={`btn-active-scale w-full p-3 px-4 rounded-xl text-left border flex items-center justify-between gap-3 transition-all ${
                           exhaust === e.name
                             ? 'bg-white/5 border-[#E11D2A] text-white'
                             : 'bg-black/30 border-white/5 text-gray-400 hover:border-white/10'
@@ -252,13 +252,13 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                             {exhaust === e.name && <Check size={10} className="text-[#E11D2A]" />}
                           </div>
                           <div>
-                            <span className="font-bold text-xs">{e.name}</span>
-                            <span className="text-[10px] opacity-60 ml-2 font-mono">
+                            <span className="font-bold text-body">{e.name}</span>
+                            <h6 className="text-nano opacity-60 ml-2 font-mono inline-block">
                               {e.hpMod === 0 ? 'Engine Spec' : `+${e.hpMod} HP output`}
-                            </span>
+                            </h6>
                           </div>
                         </div>
-                        <span className="font-mono text-xs">
+                        <span className="font-mono text-body">
                           {e.price === 0 ? 'Standard' : `+$${e.price}`}
                         </span>
                       </button>
@@ -271,22 +271,22 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                   {/* Saddle Type */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-anton text-[#E11D2A] text-lg">05</span>
-                      <h4 className="font-mono text-xs font-black uppercase tracking-wider text-white">Bespoke Saddle</h4>
+                      <span className="font-anton text-[#E11D2A] text-h3">05</span>
+                      <h6 className="font-mono text-micro font-black uppercase tracking-wider text-white">Bespoke Saddle</h6>
                     </div>
                     <div className="space-y-2">
                       {saddleOptions.map((s) => (
                         <button
                           key={s.name}
                           onClick={() => setSaddle(s.name)}
-                          className={`w-full p-2.5 px-3 rounded-xl text-left border flex items-center justify-between transition-all ${
+                          className={`btn-active-scale w-full p-2.5 px-3 rounded-xl text-left border flex items-center justify-between transition-all ${
                             saddle === s.name
                               ? 'bg-white/5 border-[#E11D2A] text-white'
                               : 'bg-black/30 border-white/5 text-gray-400 hover:border-white/10'
                           }`}
                         >
-                          <span className="font-bold text-xs select-none">{s.name}</span>
-                          <span className="font-mono text-[10px]">
+                          <span className="font-bold text-body select-none">{s.name}</span>
+                          <span className="font-mono text-body">
                             {s.price === 0 ? 'Bespoke' : s.price < 0 ? `-$${Math.abs(s.price)}` : `+$${s.price}`}
                           </span>
                         </button>
@@ -297,22 +297,22 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                   {/* Highlight Accents */}
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="font-anton text-[#E11D2A] text-lg">06</span>
-                      <h4 className="font-mono text-xs font-black uppercase tracking-wider text-white">Accent Anodize</h4>
+                      <span className="font-anton text-[#E11D2A] text-h3">06</span>
+                      <h6 className="font-mono text-micro font-black uppercase tracking-wider text-white">Accent Anodize</h6>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       {accentColors.map((a) => (
                         <button
                           key={a.name}
                           onClick={() => setAccent(a.name)}
-                          className={`p-2.5 rounded-xl border flex items-center gap-2 text-left transition-all ${
+                          className={`btn-active-scale p-2.5 rounded-xl border flex items-center gap-2 text-left transition-all ${
                             accent === a.name
                               ? 'bg-white/5 border-[#E11D2A] text-white'
                               : 'bg-black/30 border-white/5 text-gray-400 hover:border-white/10'
                           }`}
                         >
                           <span className="w-3.5 h-3.5 rounded-full inline-block shrink-0 border border-white/15" style={{ backgroundColor: a.code }} />
-                          <span className="font-bold text-[10px] tracking-tight truncate select-none">{a.name}</span>
+                          <h6 className="font-bold text-nano tracking-tight truncate select-none inline-block">{a.name}</h6>
                         </button>
                       ))}
                     </div>
@@ -326,27 +326,27 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                   <Sparkles size={32} />
                 </div>
                 <div className="space-y-2">
-                  <h4 className="font-anton text-2xl text-white uppercase tracking-wider">Commission Acknowledged</h4>
-                  <div className="font-mono text-xs text-[#E11D2A] tracking-widest font-black uppercase">COMMISSION ID: {commissionId}</div>
-                  <p className="text-gray-400 text-sm max-w-md mx-auto leading-relaxed mt-4">
+                  <h4 className="font-anton text-h2 text-white uppercase tracking-wider">Commission Acknowledged</h4>
+                  <h6 className="font-mono text-micro text-[#E11D2A] tracking-widest font-black uppercase">COMMISSION ID: {commissionId}</h6>
+                  <p className="text-gray-400 text-body max-w-md mx-auto leading-relaxed mt-4">
                     Thank you, <strong className="text-white">{buyerName}</strong>. Our Master Builder is reviewing your billet-grade configuration specifications. We have sent the technical build proposal and pricing outline to <strong className="text-white">{buyerEmail}</strong>.
                   </p>
                 </div>
 
-                <div className="bg-white/5 border border-white/5 rounded-2xl p-6 text-left w-full max-w-md space-y-3 font-mono text-[11px] text-gray-400 leading-snug">
-                  <div className="text-[#E11D2A] font-bold text-xs border-b border-white/10 pb-2 mb-2">COMMISSION CERTIFICATE</div>
-                  <div>CHASSIS: <span className="text-white float-right">{model}</span></div>
-                  <div>FINISH: <span className="text-white float-right">{finish}</span></div>
-                  <div>BST WHEELS: <span className="text-white float-right">{wheels}</span></div>
-                  <div>EXHAUST: <span className="text-white float-right">{exhaust}</span></div>
-                  <div>SADDLE: <span className="text-white float-right">{saddle}</span></div>
-                  <div>ANODIZE AT: <span className="text-white float-right" style={{ color: selectedAccent.code }}>{accent}</span></div>
-                  <div className="border-t border-white/10 pt-2 mt-2 font-bold text-white">BILL OF MATERIALS: <span className="text-[#E11D2A] float-right">${totalPrice.toLocaleString()} USD</span></div>
+                <div className="bg-white/5 border border-white/5 rounded-2xl p-6 text-left w-full max-w-md space-y-3 font-mono text-gray-400 leading-snug">
+                  <h6 className="text-[#E11D2A] font-bold text-micro border-b border-white/10 pb-2 mb-2">COMMISSION CERTIFICATE</h6>
+                  <h6 className="text-nano">CHASSIS: <span className="text-white float-right">{model}</span></h6>
+                  <h6 className="text-nano">FINISH: <span className="text-white float-right">{finish}</span></h6>
+                  <h6 className="text-nano">BST WHEELS: <span className="text-white float-right">{wheels}</span></h6>
+                  <h6 className="text-nano">EXHAUST: <span className="text-white float-right">{exhaust}</span></h6>
+                  <h6 className="text-nano">SADDLE: <span className="text-white float-right">{saddle}</span></h6>
+                  <h6 className="text-nano">ANODIZE AT: <span className="text-white float-right" style={{ color: selectedAccent.code }}>{accent}</span></h6>
+                  <h6 className="border-t border-white/10 pt-2 mt-2 font-bold text-white text-nano">BILL OF MATERIALS: <span className="text-[#E11D2A] float-right">${totalPrice.toLocaleString()} USD</span></h6>
                 </div>
 
                 <button 
                   onClick={resetConfigurator}
-                  className="bg-transparent border border-white/20 hover:border-[#E11D2A] text-white hover:text-[#E11D2A] px-6 py-2.5 rounded-full text-xs font-mono tracking-widest transition-all font-bold uppercase cursor-pointer"
+                  className="bg-transparent border border-white/20 hover:border-[#E11D2A] text-white hover:text-[#E11D2A] px-6 py-2.5 rounded-full text-body font-mono tracking-widest transition-all font-bold uppercase cursor-pointer"
                 >
                   Configure Another Build
                 </button>
@@ -358,37 +358,37 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
           <div className="lg:col-span-5 p-6 sm:p-8 bg-black/60 border-t lg:border-t-0 lg:border-l border-white/5 flex flex-col justify-between">
             <div className="space-y-6">
               <div className="space-y-1">
-                <span className="font-mono text-[9px] uppercase tracking-[0.3em] text-gray-500 font-extrabold">Selected Prototype</span>
-                <h4 className="font-anton text-4xl text-[#E11D2A] tracking-wider leading-none">{model}</h4>
+                <h6 className="font-mono text-nano uppercase tracking-[0.3em] text-gray-500 font-extrabold">Selected Prototype</h6>
+                <h4 className="font-anton text-display text-[#E11D2A] tracking-wider leading-none">{model}</h4>
               </div>
 
               {/* Specs readout */}
               <div className="grid grid-cols-3 gap-2 py-4 border-t border-b border-white/15">
                 <div className="text-center">
-                  <div className="text-[9px] font-mono text-gray-500 tracking-wider uppercase flex justify-center items-center gap-1">
+                  <h6 className="text-nano font-mono text-gray-500 tracking-wider uppercase flex justify-center items-center gap-1">
                     <Zap size={10} style={{ color: selectedAccent.code }} /> Max Output
-                  </div>
-                  <div className="font-anton text-xl text-white mt-1 leading-none">{totalHP} <span className="text-[10px] font-mono font-bold" style={{ color: selectedAccent.code }}>HP</span></div>
+                  </h6>
+                  <div className="font-anton text-h3 text-white mt-1 leading-none">{totalHP} <h6 className="text-nano font-mono font-bold inline-block" style={{ color: selectedAccent.code }}>HP</h6></div>
                 </div>
                 <div className="text-center border-l border-r border-white/10">
-                  <div className="text-[9px] font-mono text-gray-500 tracking-wider uppercase flex justify-center items-center gap-1">
+                  <h6 className="text-nano font-mono text-gray-500 tracking-wider uppercase flex justify-center items-center gap-1">
                     <Scale size={10} style={{ color: selectedAccent.code }} /> Dry Mass
-                  </div>
-                  <div className="font-anton text-xl text-white mt-1 leading-none">{totalWeight} <span className="text-[10px] font-mono font-bold" style={{ color: selectedAccent.code }}>LBS</span></div>
+                  </h6>
+                  <div className="font-anton text-h3 text-white mt-1 leading-none">{totalWeight} <h6 className="text-nano font-mono font-bold inline-block" style={{ color: selectedAccent.code }}>LBS</h6></div>
                 </div>
                 <div className="text-center">
-                  <div className="text-[9px] font-mono text-gray-500 tracking-wider uppercase flex justify-center items-center gap-1">
+                  <h6 className="text-nano font-mono text-gray-500 tracking-wider uppercase flex justify-center items-center gap-1">
                     <Cpu size={10} style={{ color: selectedAccent.code }} /> Lead Time
-                  </div>
-                  <div className="font-anton text-xl text-white mt-1 leading-none">6-8 <span className="text-[10px] font-mono font-bold" style={{ color: selectedAccent.code }}>MO</span></div>
+                  </h6>
+                  <div className="font-anton text-h3 text-white mt-1 leading-none">6-8 <h6 className="text-nano font-mono font-bold inline-block" style={{ color: selectedAccent.code }}>MO</h6></div>
                 </div>
               </div>
 
               {/* dynamic customizer mock rendering of details */}
-              <div className="bg-[#111111] p-4 rounded-xl border border-white/5 space-y-3 font-mono text-[10px] leading-relaxed">
-                <div className="text-gray-500 font-black tracking-widest uppercase flex items-center justify-between">
+              <div className="bg-[#111111] p-4 rounded-xl border border-white/5 space-y-3 font-mono text-body leading-relaxed">
+                <div className="text-gray-500 font-black tracking-widest uppercase flex items-center justify-between text-body">
                   <span>BILL OF MATERIALS</span>
-                  <span className="text-[9px] font-normal lowercase tracking-normal">Calculated USD</span>
+                  <h6 className="text-nano font-normal lowercase tracking-normal">Calculated USD</h6>
                 </div>
                 <div className="h-[1px] bg-white/5" />
                 
@@ -427,15 +427,15 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                   </div>
                 )}
 
-                <div className="flex justify-between text-gray-500 text-[9px]">
+                <div className="flex justify-between text-gray-500 text-body">
                   <span>Accent Anodize color</span>
                   <span style={{ color: selectedAccent.code }}>{selectedAccent.name}</span>
                 </div>
-
+ 
                 <div className="h-[1px] bg-white/5" />
-                <div className="flex justify-between items-baseline text-xs font-bold text-white">
+                <div className="flex justify-between items-baseline text-body font-bold text-white">
                   <span>ESTIMATED TOTAL</span>
-                  <span className="font-anton text-lg tracking-wider text-white" style={{ textShadow: `0 0 10px ${selectedAccent.code}40` }}>
+                  <span className="font-anton text-h3 tracking-wider text-white" style={{ textShadow: `0 0 10px ${selectedAccent.code}40` }}>
                     ${totalPrice.toLocaleString()}
                   </span>
                 </div>
@@ -446,7 +446,7 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
             {!formSubmitted && (
               <form onSubmit={handleCommissionSubmit} className="space-y-3 mt-6 lg:mt-0 font-sans">
                 <div className="space-y-2">
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-gray-400 block font-black">Commission Commission</span>
+                  <h6 className="font-mono text-nano uppercase tracking-widest text-gray-400 block font-black">Commission Request</h6>
                   <div className="grid grid-cols-1 gap-2">
                     <input 
                       type="text" 
@@ -454,7 +454,7 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                       value={buyerName}
                       onChange={(e) => setBuyerName(e.target.value)}
                       required
-                      className="bg-white/5 hover:bg-white/10 focus:bg-[#0c0c0c] border border-white/5 hover:border-white/15 focus:border-[#E11D2A] text-white rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none placeholder-gray-600 transition-all uppercase"
+                      className="bg-white/5 hover:bg-white/10 focus:bg-[#0c0c0c] border border-white/5 hover:border-white/15 focus:border-[#E11D2A] text-white rounded-lg px-3 py-2 text-body font-semibold focus:outline-none placeholder-gray-600 transition-all uppercase"
                     />
                     <input 
                       type="email" 
@@ -462,23 +462,23 @@ export function ConfiguratorModal({ isOpen, onClose }: ConfiguratorModalProps) {
                       value={buyerEmail}
                       onChange={(e) => setBuyerEmail(e.target.value)}
                       required
-                      className="bg-white/5 hover:bg-white/10 focus:bg-[#0c0c0c] border border-white/5 hover:border-white/15 focus:border-[#E11D2A] text-white rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none placeholder-gray-600 transition-all uppercase"
+                      className="bg-white/5 hover:bg-white/10 focus:bg-[#0c0c0c] border border-white/5 hover:border-white/15 focus:border-[#E11D2A] text-white rounded-lg px-3 py-2 text-body font-semibold focus:outline-none placeholder-gray-600 transition-all uppercase"
                     />
                   </div>
                 </div>
 
                 <button 
                   type="submit"
-                  className="w-full bg-red-650 text-white font-bold uppercase tracking-[0.2em] py-3 px-5 rounded-xl text-center text-xs flex items-center justify-center gap-2 transition-all hover:bg-red-700 hover:shadow-[0_0_20px_rgba(225,29,42,0.4)] cursor-pointer"
+                  className="w-full bg-red-650 text-white font-bold uppercase tracking-[0.2em] py-3 px-5 rounded-xl text-center text-body flex items-center justify-center gap-2 transition-all hover:bg-red-700 hover:shadow-[0_0_20px_rgba(225,29,42,0.4)] cursor-pointer"
                   style={{ backgroundColor: selectedAccent.code }}
                   id="submit-bespoke-commission-btn"
                 >
                   <Shield size={14} className="animate-spin-slow" />
                   SUBMIT commission RESERVATION
                 </button>
-                <span className="block text-center font-mono text-[9px] text-gray-600 uppercase tracking-widest mt-1">
+                <h6 className="block text-center font-mono text-nano text-gray-600 uppercase tracking-widest mt-1">
                   secure military billet validation guaranteed
-                </span>
+                </h6>
               </form>
             )}
           </div>

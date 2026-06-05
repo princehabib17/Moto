@@ -171,23 +171,23 @@ export function Navbar() {
             <span className="absolute top-0 left-0 w-[1px] h-2 bg-[#E11D2A]"></span>
             
             <div className="flex items-center gap-1.5">
-              <span className="font-heading text-white tracking-[0.14em] text-lg sm:text-xl font-black">KRGT-1</span>
+              <span className="font-heading text-white tracking-[0.14em] text-h3 font-black">KRGT-1</span>
               <span className="w-1.5 h-1.5 rounded-full bg-[#E11D2A] animate-pulse shadow-[0_0_6px_#E11D2A]"></span>
             </div>
           </Link>
-
+ 
           {/* SENSOR READING widget 1: Speedometer & Gear Box */}
           <div className="hidden sm:flex items-center gap-3 border border-white/5 bg-black/45 backdrop-blur-md px-3 py-1.5 rounded shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
             <div className="flex flex-col">
-              <span className="font-mono text-[6.5px] text-gray-500 tracking-wider">SPEED_MPH</span>
-              <span className="font-anton text-[16px] text-white tracking-widest leading-none mt-0.5">
+              <h6 className="text-gray-500 font-bold">SPEED_MPH</h6>
+              <span className="font-anton text-h3 text-white tracking-widest leading-none mt-0.5">
                 {String(speedValue).padStart(3, '0')}
               </span>
             </div>
             <div className="h-6 w-[1px] bg-white/10"></div>
             <div className="flex flex-col items-center">
-              <span className="font-mono text-[6.5px] text-gray-500 tracking-wider">GEAR</span>
-              <span className={`font-anton text-[16px] leading-none mt-0.5 px-1.5 rounded text-center ${
+              <h6 className="text-gray-500 font-bold">GEAR</h6>
+              <span className={`font-anton text-h3 leading-none mt-0.5 px-1.5 rounded text-center ${
                 gearValue === 'N' ? 'text-emerald-400 bg-emerald-950/20 border border-emerald-900/30' : 'text-[#E11D2A] bg-red-950/20'
               }`}>
                 {gearValue}
@@ -195,15 +195,15 @@ export function Navbar() {
             </div>
           </div>
         </div>
-
+ 
         {/* Center Floating Dock: Tactical Grid Navigation */}
         <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center bg-black/60 backdrop-blur-md border border-white/10 rounded px-5 py-2 shadow-[0_12px_45px_rgba(0,0,0,0.85)]">
           {/* Active section context tracker */}
-          <div className="font-mono text-[8px] font-extrabold tracking-[0.15em] text-[#E11D2A] border-r border-white/10 pr-4 mr-4 flex flex-col items-start">
-            <span className="text-gray-500 font-sans text-[7px] tracking-wider mb-0.5">SYS_FOCUS</span>
-            <span className="bg-red-950/40 px-1.5 py-0.5 border border-red-900/40 uppercase font-anton text-[#E11D2A] leading-none">
+          <div className="font-mono font-extrabold tracking-[0.15em] text-[#E11D2A] border-r border-white/10 pr-4 mr-4 flex flex-col items-start">
+            <h6 className="text-gray-500 font-sans text-nano tracking-wider mb-0.5">SYS_FOCUS</h6>
+            <h6 className="bg-red-950/40 px-1.5 py-0.5 border border-red-900/40 font-anton text-[#E11D2A] text-nano leading-none">
               {activeSection}
-            </span>
+            </h6>
           </div>
 
           <div className="flex items-center gap-1 sm:gap-1.5">
@@ -214,25 +214,27 @@ export function Navbar() {
                   key={item.name}
                   href={item.path}
                   onClick={(e) => handleNav(item.name, item.path, item.isScroll, e)}
-                  className={`relative px-4 py-1.5 text-[9px] tracking-[0.28em] uppercase font-bold transition-all select-none group flex items-center ${
+                  className={`relative px-4 py-1.5 tracking-[0.28em] uppercase font-bold transition-all select-none group flex items-center ${
                     isActive ? 'text-white' : 'text-gray-400 hover:text-white'
                   }`}
                 >
                   <span className={`absolute left-0 w-1 h-full border-l transition-all ${
                     isActive ? 'border-[#E11D2A]' : 'border-transparent group-hover:border-white/30'
                   }`}></span>
-                  <span className="relative z-10 px-0.5">{item.name}</span>
+                  <h6 className="relative z-10 px-0.5 text-[14px] font-sans font-bold leading-none uppercase tracking-[0.28em]">
+                    {item.name}
+                  </h6>
                 </a>
               );
             })}
           </div>
 
           {/* Dynamic Scroll Ticker Meter */}
-          <div className="font-mono text-[8px] font-extrabold tracking-[0.15em] text-white/90 border-l border-white/10 pl-4 ml-4 flex flex-col items-start">
-            <span className="text-gray-500 font-sans text-[7px] tracking-wider mb-0.5">MILEAGE_PCT</span>
-            <span className="text-gray-300 font-mono font-bold leading-none mt-0.5">
+          <div className="font-mono font-extrabold tracking-[0.15em] text-white/90 border-l border-white/10 pl-4 ml-4 flex flex-col items-start">
+            <h6 className="text-gray-500 font-sans text-nano tracking-wider mb-0.5">MILEAGE_PCT</h6>
+            <h6 className="text-gray-300 font-mono text-micro font-bold leading-none mt-0.5">
               {String(scrollProgress).padStart(3, '0')}%
-            </span>
+            </h6>
           </div>
         </div>
 
@@ -242,21 +244,21 @@ export function Navbar() {
           {/* SENSOR READING widget 2: Lean angle based on mouse posture */}
           <div className="hidden sm:flex items-center gap-3 border border-white/5 bg-black/45 backdrop-blur-md px-3 py-1.5 rounded shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
             <div className="flex flex-col text-right">
-              <span className="font-mono text-[6.5px] text-gray-500 tracking-wider">LEAN_POSTURE</span>
-              <span className="font-anton text-[16px] text-white leading-none mt-0.5 flex items-center gap-1 justify-end">
+              <h6 className="font-mono text-nano text-gray-500 tracking-wider">LEAN_POSTURE</h6>
+              <span className="font-anton text-h3 text-white leading-none mt-0.5 flex items-center gap-1 justify-end">
                 {Math.abs(leanAngleValue)}° 
-                <span className="text-[9px] font-sans font-black text-gray-500 uppercase tracking-widest">
+                <h6 className="text-nano font-sans font-black text-gray-500 uppercase tracking-widest inline-block ml-1">
                   {leanAngleValue < 0 ? 'L' : leanAngleValue > 0 ? 'R' : 'C'}
-                </span>
+                </h6>
               </span>
             </div>
             <div className="h-6 w-[1px] bg-white/10"></div>
             
             {/* Real-time intaking throttle indicator (Animates size on wheel scrolling) */}
             <div className="flex flex-col text-left">
-              <span className="font-mono text-[6.5px] text-gray-500 tracking-wider">THROTTLE_OPEN</span>
+              <h6 className="font-mono text-nano text-gray-500 tracking-wider">THROTTLE_OPEN</h6>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="font-anton text-[16px] text-[#E11D2A] leading-none tracking-tight">
+                <span className="font-anton text-h3 text-[#E11D2A] leading-none tracking-tight">
                   {throttle}%
                 </span>
                 
@@ -274,15 +276,15 @@ export function Navbar() {
           <button 
             id="hud-arm-configure"
             onClick={() => window.dispatchEvent(new CustomEvent('open-configurator'))}
-            className="hidden md:flex relative items-center justify-center gap-2 bg-black/60 hover:bg-[#E11D2A] border border-white/10 hover:border-[#E11D2A]/60 px-5 py-2.5 rounded shadow-[0_10px_35px_rgba(0,0,0,0.6)] cursor-pointer group select-none transition-all duration-300 pointer-events-auto"
+            className="btn-active-scale hidden md:flex relative items-center justify-center gap-2 bg-black/60 hover:bg-[#E11D2A] border border-white/10 hover:border-[#E11D2A]/60 px-5 py-2.5 rounded shadow-[0_10px_35px_rgba(0,0,0,0.6)] cursor-pointer group select-none transition-all duration-300 pointer-events-auto"
           >
             <span className="w-2 h-2 rounded-full bg-[#E11D2A] group-hover:bg-white animate-pulse shadow-[0_0_8px_#E11D2A] group-hover:shadow-[0_0_8px_#fff] transition-all duration-300"></span>
             
-            <span className="text-[10px] tracking-[0.25em] uppercase font-bold text-white leading-none">
+            <h6 className="text-[14px] font-sans font-bold tracking-[0.25em] uppercase text-white leading-none">
               CONFIGURE KRGT-1
-            </span>
+            </h6>
           </button>
-
+ 
           {/* Hamburger menu for Mobile */}
           <button 
             onClick={() => {
@@ -300,12 +302,11 @@ export function Navbar() {
           </button>
         </div>
       </nav>
-
-      {/* Futuristic Drawer Panel Overlay on Mobile Selection (Hidden by default, toggled via simple style hook) */}
+       {/* Futuristic Drawer Panel Overlay on Mobile Selection (Hidden by default, toggled via simple style hook) */}
       <div id="mobile-drawer" className="hidden fixed inset-0 z-40 bg-black/98 backdrop-blur-2xl px-6 pt-24 pb-12 flex flex-col justify-between md:hidden pointer-events-auto border-b border-white/10">
-        <div className="absolute top-20 left-6 right-6 flex justify-between font-mono text-[8.5px] text-gray-400">
-          <span>[ HUD MATRIX DIRECT ]</span>
-          <span>SPEED: {speedValue} MPH</span>
+        <div className="absolute top-20 left-6 right-6 flex justify-between font-mono text-gray-400">
+          <h6 className="text-nano font-mono">[ HUD MATRIX DIRECT ]</h6>
+          <h6 className="text-nano font-mono">SPEED: {speedValue} MPH</h6>
         </div>
 
         <div className="flex flex-col gap-2 mt-4">
@@ -319,14 +320,14 @@ export function Navbar() {
                   document.getElementById('mobile-drawer')?.classList.add('hidden');
                   handleNav(item.name, item.path, item.isScroll, e);
                 }}
-                className={`text-white text-lg font-bold tracking-[0.2em] py-4 border-b border-white/5 text-left flex items-center justify-between ${
+                className={`text-white text-h3 font-bold tracking-[0.2em] py-4 border-b border-white/5 text-left flex items-center justify-between ${
                   isActive ? 'text-[#E11D2A]' : 'text-gray-200'
                 }`}
               >
                 <span>{item.name}</span>
-                <span className="font-mono text-[9px] text-[#E11D2A] opacity-80">
+                <h6 className="font-mono text-nano text-[#E11D2A] opacity-80">
                   {isActive ? '[ ACTIVE ]' : ''}
-                </span>
+                </h6>
               </a>
             );
           })}
@@ -338,13 +339,15 @@ export function Navbar() {
               document.getElementById('mobile-drawer')?.classList.add('hidden');
               window.dispatchEvent(new CustomEvent('open-configurator'));
             }}
-            className="bg-[#E11D2A] text-white text-xs font-black uppercase tracking-[0.25em] py-4 rounded shadow-[0_8px_25px_rgba(225,29,42,0.4)] flex items-center justify-center gap-2"
+            className="bg-[#E11D2A] text-white py-4 rounded shadow-[0_8px_25px_rgba(225,29,42,0.4)] flex items-center justify-center gap-2 cursor-pointer"
           >
-            CONFIGURE VEHICLE
+            <h6 className="text-[14px] font-sans font-black uppercase tracking-[0.25em] text-white leading-none">
+              CONFIGURE VEHICLE
+            </h6>
           </button>
-          <div className="text-center font-mono text-[7px] text-gray-500 tracking-[0.1em] uppercase">
+          <h6 className="text-center font-mono text-nano text-gray-500 tracking-[0.1em] uppercase">
             KRGT-1 BIKE COCKPIT
-          </div>
+          </h6>
         </div>
       </div>
     </>

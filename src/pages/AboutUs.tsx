@@ -65,24 +65,24 @@ export default function AboutUs() {
       {/* Hero + Horizontal timeline slider */}
       <section ref={sliderContainerRef} className="w-full h-screen flex flex-col justify-between pt-32 sm:pt-40 pb-5 overflow-hidden">
         <div className="px-5 sm:px-8 max-w-7xl mx-auto w-full">
-          <h1 className="text-4xl sm:text-6xl font-bold text-white uppercase tracking-tighter mb-8">
+          <h1 className="text-display font-bold text-white uppercase tracking-tighter mb-8">
             The Workshop.
           </h1>
-          <p className="text-xl text-gray-400 leading-relaxed max-w-3xl font-medium">
+          <p className="text-h3 text-gray-400 leading-relaxed max-w-3xl font-medium">
             We are a collective of designers, fabricators, and engineers dedicated to a singular obsession: creating the ultimate bespoke riding experience. This is the story of Revenant.
           </p>
         </div>
 
         <div className="w-full translate-y-12">
           <div className="px-5 sm:px-8 max-w-7xl mx-auto w-full mb-12">
-            <h2 className="text-2xl font-bold text-white uppercase tracking-wide">Our Heritage</h2>
+            <h2 className="text-h3 font-bold text-white uppercase tracking-wide">Our Heritage</h2>
           </div>
           
           <div ref={sliderRef} className="flex gap-12 px-5 sm:px-8 pl-5 sm:pl-8 pr-[50vw]">
             {timelineData.map((item, i) => (
               <div key={i} className="flex flex-col min-w-[300px] w-[300px]">
-                <span className="text-6xl font-bold text-white/10 mb-4 tracking-tighter">{item.year}</span>
-                <p className="text-gray-300 font-medium text-lg border-t-2 border-red-600 pt-4">
+                <span className="text-display font-bold text-white/10 mb-4 tracking-tighter">{item.year}</span>
+                <p className="text-h3 text-gray-300 font-medium border-t-2 border-[#E11D2A] pt-4">
                   {item.text}
                 </p>
               </div>
@@ -95,7 +95,7 @@ export default function AboutUs() {
       <section className="h-screen py-16 px-5 sm:px-8 max-w-7xl mx-auto w-full flex flex-col justify-center">
         {/* Small description below slider */}
         <div className="mb-12">
-          <p className="text-[16px] text-gray-400 font-medium leading-relaxed max-w-[20rem]">
+          <p className="text-body text-gray-400 font-medium leading-relaxed max-w-[20rem]">
             Since our inception, our focus has always been on rider-centric design paired with uncompromising performance.
           </p>
         </div>
@@ -105,28 +105,28 @@ export default function AboutUs() {
             <div className="flex gap-1 mb-4 text-red-500">
               {'★★★★★'}
             </div>
-            <p className="text-lg text-gray-200 font-medium mb-6">
+            <p className="text-body text-gray-200 font-medium mb-6">
               "My R-1 is unlike anything I've ever ridden. The torque rips your arms off, yet the cornering is as sharp as a scalpel. True American muscle."
             </p>
-            <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">— Jason K.</p>
+            <p className="text-body text-gray-500 font-bold uppercase tracking-widest">— Jason K.</p>
           </div>
           
           <div className="p-8 rounded-3xl bg-white/5 border border-white/10">
             <div className="flex gap-1 mb-4 text-red-500">
               {'★★★★★'}
             </div>
-            <p className="text-lg text-gray-200 font-medium mb-6">
+            <p className="text-body text-gray-200 font-medium mb-6">
               "The fit and finish are borderline obsessive. Every piece of billet aluminum feels like a sculpture. It's a heavy machine that dances on the road."
             </p>
-            <p className="text-sm text-gray-500 font-bold uppercase tracking-widest">— Mark T.</p>
+            <p className="text-body text-gray-500 font-bold uppercase tracking-widest">— Mark T.</p>
           </div>
         </div>
 
         <div className="text-center py-8 border-t border-b border-white/10">
-          <h3 className="text-2xl font-bold text-white uppercase tracking-tighter mb-4">Ready to ride?</h3>
+          <h3 className="text-h3 font-bold text-white uppercase tracking-tighter mb-4">Ready to ride?</h3>
           <button 
             onClick={() => window.dispatchEvent(new CustomEvent('open-configurator'))}
-            className="bg-[#E11D2A] text-white font-bold uppercase tracking-widest px-8 py-3 rounded-full hover:bg-red-700 transition-colors inline-flex items-center gap-2 shadow-[0_0_15px_rgba(220,38,38,0.5)] cursor-pointer"
+            className="btn-active-scale bg-[#E11D2A] text-white text-body font-bold uppercase tracking-widest px-8 py-3 rounded-full hover:bg-red-700 transition-colors inline-flex items-center gap-2 shadow-[0_0_15px_rgba(220,38,38,0.5)] cursor-pointer"
           >
             Configure Your Build
           </button>
@@ -135,17 +135,17 @@ export default function AboutUs() {
 
       {/* Team Section */}
       <section className="h-screen py-16 px-5 sm:px-8 max-w-7xl mx-auto w-full flex flex-col justify-center overflow-hidden">
-        <h2 className="text-4xl font-bold text-white uppercase tracking-tighter mb-8 text-left">Meet the Builders</h2>
+        <h2 className="text-h2 font-bold text-white uppercase tracking-tighter mb-8 text-left">Meet the Builders</h2>
         <div className="w-full max-h-[70vh] overflow-y-auto pr-2 scrollbar-thin">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {teamData.map((member, i) => (
               <div key={i} className="p-6 rounded-2xl flex flex-col items-start text-left bg-white/5 border border-white/10 hover:border-red-500/50 transition-colors">
-                <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mb-4 text-red-500 border border-white/10">
+                <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center mb-4 text-[#E11D2A] border border-white/10">
                   <User size={20} />
                 </div>
-                <h4 className="font-bold text-white text-[16px] mb-1">{member.name}</h4>
-                <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest mb-3">{member.role}</p>
-                <p className="text-xs text-gray-400 font-medium leading-relaxed">{member.desc}</p>
+                <h4 className="font-bold text-white text-body mb-1">{member.name}</h4>
+                <h6 className="text-micro font-bold text-[#E11D2A] uppercase tracking-widest mb-3">{member.role}</h6>
+                <p className="text-body text-gray-400 font-medium leading-relaxed">{member.desc}</p>
               </div>
             ))}
           </div>
@@ -154,7 +154,7 @@ export default function AboutUs() {
 
       {/* FAQ Section */}
       <section className="h-screen py-16 px-5 sm:px-8 max-w-3xl mx-auto w-full flex flex-col justify-center">
-        <h2 className="text-3xl font-bold text-white mb-8 tracking-tighter uppercase text-center">Frequently Asked Questions</h2>
+        <h2 className="text-h2 font-bold text-white mb-8 tracking-tighter uppercase text-center">Frequently Asked Questions</h2>
         
         <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 scrollbar-thin">
           {[
@@ -165,10 +165,10 @@ export default function AboutUs() {
           ].map((faq, i) => (
             <div key={i} className="rounded-2xl p-6 bg-white/5 border border-white/10 hover:border-red-500/50 transition-colors">
               <div className="flex justify-between items-center cursor-pointer group">
-                <h4 className="font-bold text-white text-lg">{faq.q}</h4>
-                <ChevronDown className="text-red-500 group-hover:text-white transition-colors" size={20} />
+                <h4 className="font-bold text-white text-h3">{faq.q}</h4>
+                <ChevronDown className="text-[#E11D2A] group-hover:text-white transition-colors" size={20} />
               </div>
-              <p className="text-gray-400 font-medium mt-4 leading-relaxed">{faq.a}</p>
+              <p className="text-body text-gray-400 font-medium mt-4 leading-relaxed">{faq.a}</p>
             </div>
           ))}
         </div>
