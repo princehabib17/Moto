@@ -1,4 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface VideoBackgroundProps {
   src: string;
@@ -10,10 +14,32 @@ export function VideoBackground({ src }: VideoBackgroundProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [canPlay, setCanPlay] = useState(false);
+  const currentTarget = useRef(0);
+  const seeking = useRef(false);
+  const seekPending = useRef(false);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+
+    const doSeek = () => {
+      if (video.seeking || seeking.current) {
+        seekPending.current = true;
+        return;
+      }
+      seeking.current = true;
+      requestAnimationFrame(() => {
+        video.currentTime = currentTarget.current;
+      });
+    };
+
+    const handleSeeked = () => {
+      seeking.current = false;
+      if (seekPending.current) {
+        seekPending.current = false;
+        doSeek();
+      }
+    };
 
     const handleProgress = () => {
       if (video.duration > 0) {
@@ -27,35 +53,53 @@ export function VideoBackground({ src }: VideoBackgroundProps) {
 
     const handleCanPlay = () => {
       setCanPlay(true);
-      // Play slightly to ensure a frame is loaded, then pause
-      video.play().then(() => {
-        video.pause();
-      }).catch((e) => {
-        console.log("Autoplay check:", e);
-      });
     };
 
     const handleLoadedData = () => {
       setCanPlay(true);
     };
 
+    video.addEventListener('seeked', handleSeeked);
     video.addEventListener('progress', handleProgress);
     video.addEventListener('canplay', handleCanPlay);
     video.addEventListener('canplaythrough', handleCanPlay);
     video.addEventListener('loadeddata', handleLoadedData);
 
     video.load();
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        video.pause();
+      }).catch((e) => {
+        console.log("Autoplay check:", e);
+      });
+    }
 
     const fallbackTimeout = setTimeout(() => {
       setCanPlay(true);
     }, 2000);
 
+    const st = ScrollTrigger.create({
+      trigger: document.documentElement,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: true,
+      onUpdate: (self) => {
+        if (!video || !video.duration) return;
+        const duration = video.duration || 1;
+        currentTarget.current = Math.max(0, Math.min(self.progress * duration, duration - 0.1));
+        doSeek();
+      },
+    });
+
     return () => {
+      video.removeEventListener('seeked', handleSeeked);
       video.removeEventListener('progress', handleProgress);
       video.removeEventListener('canplay', handleCanPlay);
       video.removeEventListener('canplaythrough', handleCanPlay);
       video.removeEventListener('loadeddata', handleLoadedData);
       clearTimeout(fallbackTimeout);
+      st.kill();
     };
   }, []);
 
