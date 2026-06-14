@@ -119,7 +119,7 @@ export function VideoBackground({ src }: VideoBackgroundProps) {
         <video
           ref={videoRef}
           src={src}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover scale-[1.08] origin-center"
           muted
           playsInline
           crossOrigin="anonymous"

@@ -41,7 +41,7 @@ function ScrollToTop() {
 }
 
 function DynamicBackground() {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);

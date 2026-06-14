@@ -145,125 +145,187 @@ const HUDStat = ({ end, suffix, label, accent = '#E11D2A', delay = 0, num = '01'
   }, [triggered, end, delay]);
 
   const progressRatio = Math.min(value, max) / max;
-  const totalLength = 267; // Precise semi-circle arc length of radius 85 (pi * R = 3.14159 * 85 = 267)
-  const strokeDashoffset = totalLength - (progressRatio * totalLength);
+
+  // Polar to Cartesian coordinate helper for drawing clean gauges (symmetrical 240 degrees sweep)
+  const getTickCoords = (percent: number, radius: number) => {
+    const startAngle = (7 * Math.PI) / 6; // 210 degrees
+    const endAngle = -Math.PI / 6;       // -30 degrees
+    const angle = startAngle - percent * (startAngle - endAngle);
+    const x = 170 + radius * Math.cos(angle);
+    const y = 150 - radius * Math.sin(angle);
+    return { x, y };
+  };
+
+  // Compile individual digital LED segments (precise high-tech tachometer layout)
+  const ticks = [];
+  const totalTickCount = 31;
+  for (let i = 0; i < totalTickCount; i++) {
+    const tRatio = i / (totalTickCount - 1);
+    const isActive = tRatio <= progressRatio;
+    
+    // Distinct heights for major and minor bar notches
+    const rInner = i % 5 === 0 ? 98 : 105;
+    const rOuter = i % 5 === 0 ? 120 : 116;
+    
+    const { x: xStart, y: yStart } = getTickCoords(tRatio, rInner);
+    const { x: xEnd, y: yEnd } = getTickCoords(tRatio, rOuter);
+    
+    // Vibrant colors near redline limits (top 15%)
+    const isRedline = tRatio > 0.85;
+    const strokeColor = isActive
+      ? (isRedline ? '#ffffff' : accent)
+      : 'rgba(255, 255, 255, 0.05)';
+    
+    const strokeWidth = i % 5 === 0 ? 2.5 : 1.25;
+
+    ticks.push(
+      <line 
+        key={`tick-${i}`}
+        x1={xStart}
+        y1={yStart}
+        x2={xEnd}
+        y2={yEnd}
+        stroke={strokeColor}
+        strokeWidth={strokeWidth}
+        opacity={isActive ? 1 : 0.4}
+        className="transition-all duration-300"
+        style={isActive ? { filter: `drop-shadow(0 0 2px rgba(255,255,255,0.3))` } : {}}
+      />
+    );
+  }
+
+  // Micro scale numerical readouts
+  const scaleNumbers = [];
+  for (let i = 0; i < totalTickCount; i += 5) {
+    const tRatio = i / (totalTickCount - 1);
+    const val = Math.round(tRatio * max);
+    const { x, y } = getTickCoords(tRatio, 82);
+    const isActive = tRatio <= progressRatio;
+
+    scaleNumbers.push(
+      <text 
+        key={`lbl-${i}`}
+        x={x}
+        y={y + 3.5}
+        textAnchor="middle"
+        fill={isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.25)'}
+        fontSize="9"
+        fontWeight="bold"
+        className="font-mono tracking-tighter transition-all duration-300"
+      >
+        {val}
+      </text>
+    );
+  }
+
+  // Interactive warning labels based on levels
+  const statusLabel = progressRatio > 0.85 
+    ? 'REDLINE // CRITICAL' 
+    : progressRatio > 0.5 
+      ? 'OPTIMAL POWER' 
+      : 'STABLE RUNNING';
 
   const isDialOne = num === '01';
-  const displayNumColor = isDialOne ? 'text-[#E11D2A] drop-shadow-[0_0_12px_rgba(225,29,42,0.45)]' : 'text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.15)]';
-  const displaySuffixColor = 'text-[#E11D2A]';
+  const displayNumColor = 'text-white drop-shadow-none';
 
   return (
     <div 
       ref={ref}
-      className="relative flex flex-col items-center justify-center select-none pointer-events-auto transition-transform duration-300 hover:scale-[1.03]"
+      className="relative flex flex-col items-center justify-center select-none pointer-events-auto transition-all duration-300 hover:scale-[1.05]"
       id={`hud-stat-${num}`}
       style={{
-        width: '200px',
-        height: '160px',
+        width: '680px',
+        height: '560px',
       }}
     >
-      {/* SVG Arc Dome - Fits the 200x160 container natively */}
+      {/* Speedometer Gauges System */}
       <svg 
         className="absolute inset-0 w-full h-full pointer-events-none" 
-        viewBox="0 0 200 160" 
+        viewBox="0 0 340 280" 
         fill="none"
       >
-        <defs>
-          <mask id={`sweep-mask-${num}`}>
-            <path 
-              d="M 15,147 A 85,85 0 0,1 185,147" 
-              stroke="white" 
-              strokeWidth="7" 
-              strokeLinecap="butt" 
-              fill="none"
-              strokeDasharray="267 267"
-              strokeDashoffset={strokeDashoffset}
-            />
-          </mask>
-        </defs>
-        
-        {/* subtle ticks next to numbers */}
-        <path d="M 11,149 L 11,153 L 19,153" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="1" />
-        <path d="M 189,149 L 189,153 L 181,153" stroke="rgba(255, 255, 255, 0.15)" strokeWidth="1" />
-        
-        {/* Extreme Outer Accent Bezel */}
+        {/* Double circular framing ring segment segments */}
         <path 
-          d="M 11,148 A 89,89 0 0,1 189,148" 
-          stroke="rgba(255, 255, 255, 0.1)" 
-          strokeWidth="1.2" 
+          d="M 74.74,205 A 110,110 0 1,1 265.26,205" 
+          stroke="rgba(255,255,255,0.04)" 
+          strokeWidth="1.5"
+          strokeDasharray="4 8"
+          fill="none"
+        />
+        <path 
+          d="M 61.8,212.5 A 125,125 0 1,1 278.2,212.5" 
+          stroke="rgba(255,255,255,0.03)" 
+          strokeWidth="1"
+          fill="none"
         />
 
-        {/* Underlay base track circle (segmented inactive ticks) */}
+        {/* Active Laser accent arc track */}
         <path 
-          d="M 15,147 A 85,85 0 0,1 185,147" 
-          stroke="rgba(255, 255, 255, 0.12)" 
-          strokeWidth="4.5" 
-          strokeLinecap="butt"
-          strokeDasharray="1.5 2.5" 
-        />
-
-        {/* Dynamic LED bar sweep (segmented active red ticks overlay) */}
-        <path 
-          d="M 15,147 A 85,85 0 0,1 185,147" 
+          d="M 74.74,205 A 110,110 0 1,1 265.26,205" 
           stroke={accent} 
-          strokeWidth="5.5" 
-          strokeLinecap="butt"
-          strokeDasharray="1.5 2.5"
-          mask={`url(#sweep-mask-${num})`}
-          style={{
-            filter: 'drop-shadow(0 0 6px rgba(225, 29, 42, 0.9)) drop-shadow(0 0 1px rgba(255,80,80,0.5))'
-          }}
+          strokeWidth="1"
+          opacity="0.15"
+          fill="none"
         />
 
-        {/* Left / Right Start/End Cap Labels */}
-        <line x1="11" y1="147" x2="19" y2="147" stroke="rgba(255, 255, 255, 0.2)" strokeWidth="1.2" />
-        <line x1="181" y1="147" x2="189" y2="147" stroke="rgba(255, 255, 255, 0.2)" strokeWidth="1.2" />
+        {/* Render Generated Ticks */}
+        {ticks}
+
+        {/* Render Scale Numbers */}
+        {scaleNumbers}
       </svg>
 
-      {/* Ambient background glow inside the arch */}
-      <div className="absolute top-[48%] left-1/2 -translate-x-1/2 -translate-y-1/2 h-14 w-20 bg-[#E11D2A]/[0.02] rounded-full blur-2xl pointer-events-none" />
+      {/* Cyber ambient core glowing halo */}
+      <div 
+        className="absolute top-[52%] left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl pointer-events-none transition-all duration-300" 
+        style={{
+          width: '300px',
+          height: '300px',
+          backgroundColor: progressRatio > 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.01)'
+        }}
+      />
 
-      {/* Top Badge (e.g. [ 01 ]) centered above the dome apex */}
-      <div className="absolute top-[38px] left-0 right-0 flex justify-center pointer-events-none z-10 select-none">
-        <h6 className="font-mono text-nano font-bold text-gray-500 tracking-[0.25em] uppercase">
-          [ <span style={{ color: num === '01' ? accent : '#fff' }}>{num}</span> ]
-        </h6>
+      {/* TOP META-BADGE with clean tech border */}
+      <div className="absolute top-[84px] px-2.5 py-0.5 rounded bg-black/60 border border-white/5 flex items-center select-none pointer-events-none z-10 text-[9px] font-mono font-bold">
+        <span className="text-gray-500 mr-1.5 uppercase">SYS_MTR_</span>
+        <span style={{ color: accent }} className="animate-pulse">[ {num} ]</span>
       </div>
 
-      {/* Text Container - Nestled inside the dome */}
+      {/* CENTRAL READOUT PANEL */}
       <div 
-        className="absolute left-0 right-0 flex flex-col items-center justify-center pointer-events-none z-10"
+        className="absolute left-0 right-0 flex flex-col items-center justify-center pointer-events-none z-10 text-center"
         style={{
-          top: '85px',
-          height: '65px',
+          top: '150px',
+          height: '260px'
         }}
       >
-        
-        {/* Big numeric data display */}
-        <div className="flex items-baseline justify-center gap-1 select-none pointer-events-auto">
-          <span className={`font-industrial text-[32px] leading-[0.75] font-black ${displayNumColor}`}>
+        <span className="font-mono text-[10px] text-gray-500 font-bold uppercase tracking-[0.25em] mb-2">
+          {label}
+        </span>
+
+        {/* Giant Speed Output Readout value */}
+        <div className="flex items-baseline justify-center select-none pointer-events-auto">
+          <span 
+            className={`font-industrial text-[120px] leading-none font-black ${displayNumColor}`}
+            style={{
+              fontFamily: '"Anton", sans-serif',
+              letterSpacing: '1px'
+            }}
+          >
             {value}
           </span>
-          <h6 className={`font-mono text-nano font-black tracking-widest ${displaySuffixColor} uppercase pb-[2px] inline-block`}>
+          <span className="font-mono text-[16px] font-black text-gray-400 tracking-widest uppercase ml-2 pb-2" style={{ color: progressRatio > 0 ? accent : 'rgba(255,255,255,0.3)' }}>
             {suffix}
-          </h6>
+          </span>
         </div>
 
-        {/* Precise human metric label */}
-        <div className="flex flex-col items-center justify-center px-4 mt-2 select-none pointer-events-auto">
-          <h6 className="font-sans text-nano text-[#8e8d88] font-bold tracking-[0.2em] text-center uppercase mr-[-0.2em]">
-            {label}
-          </h6>
-          
-          {/* Tech horizontal bracket structure */}
-          <div className="relative w-[50px] h-[4px] mt-1 flex items-center justify-center opacity-80">
-            <div className="absolute left-0 right-0 h-[1px] bg-white/10"></div>
-            <div className="absolute left-0 top-0 w-[1px] h-[3px] bg-white/20"></div>
-            <div className="absolute right-0 top-0 w-[1px] h-[3px] bg-white/20"></div>
-            <div className="absolute w-[3px] h-[3px] bg-[#E11D2A] rounded-full"></div>
-          </div>
+        {/* Digital warning / system message bar */}
+        <div className="mt-5 px-3 py-1.5 rounded bg-black/60 border border-white/5 flex items-center gap-1.5 opacity-90 select-none">
+          <span className={`w-2 h-2 rounded-full ${progressRatio > 0.85 ? 'bg-red-500 animate-ping' : progressRatio > 0 ? 'bg-[#E11D2A]' : 'bg-gray-600'}`} />
+          <span className="font-mono text-[9px] text-gray-400 uppercase tracking-[0.2em]">
+            {statusLabel}
+          </span>
         </div>
-
       </div>
     </div>
   );
@@ -278,39 +340,47 @@ export default function Home() {
   const heroExtrasRef = useRef<HTMLDivElement>(null);
 
   const [scrollRatio, setScrollRatio] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 1024 : false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   const [windowHeight, setWindowHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
   
   const isSmallMobile = windowWidth < 640;
-  // Calculate scale to fit either width or 100vh height (minus some padding)
-  const trueBodyWidth = isMobile ? 800 : 1400;
-  const trueBodyHeight = isMobile ? 540 : 540;
-  const widthScale = (windowWidth - 40) / trueBodyWidth;
-  const heightScale = (windowHeight - 80) / trueBodyHeight;
-  const scale = isSmallMobile 
-    ? Math.min((windowWidth - 16) / trueBodyWidth, heightScale * 2.0)
-    : Math.min(2.0, widthScale, heightScale);
+  // Calculate scale to fit exactly inside window viewport boundaries
+  const trueBodyWidth = isMobile ? 720 : 1600;
+  const trueBodyHeight = isMobile ? 1200 : 900;
+  
+  // Safe area padding
+  const paddingX = isMobile ? 20 : 80;
+  const paddingY = isMobile ? 120 : 160; 
 
-  // HUD Coordinates mapped to true body container
-  const x1 = isMobile ? 400 : 1100; // Dry Weight
-  const y1 = isMobile ? 110 : 80;
+  const widthScale = (windowWidth - paddingX) / trueBodyWidth;
+  const heightScale = (windowHeight - paddingY) / trueBodyHeight;
+  
+  // Enforce tight constraints so it never exceeds viewport on desktop, and scales comfortably on mobile
+  const scale = isMobile
+    ? Math.min(0.65, Math.max(0.25, widthScale))
+    : Math.max(0.1, Math.min(1.0, widthScale, heightScale));
 
-  const x2 = isMobile ? 140 : 1250; // Rear Wheel Power
-  const y2 = isMobile ? 310 : 190;
+  // HUD Coordinates mapped to true body container or mobile-optimized portrait grid
+  // Spaced around the central reticle to match user's handdrawn layout perfectly on mobile
+  const x1 = isMobile ? 120 : 20; // Dry Weight (Top Left)
+  const y1 = isMobile ? 380 : 570;
 
-  const x3 = isMobile ? 660 : 1250; // Max Torque
-  const y3 = isMobile ? 310 : 350;
+  const x2 = isMobile ? 600 : 1500; // Rear Wheel Power (Top Right)
+  const y2 = isMobile ? 220 : 320;
 
-  const x4 = isMobile ? 400 : 1100; // IQ Score
-  const y4 = isMobile ? 430 : 460;
+  const x3 = isMobile ? 600 : 1650; // Max Torque (Bottom Right)
+  const y3 = isMobile ? 980 : 750;
+
+  const x4 = isMobile ? 120 : 720; // IQ Score (Bottom Left)
+  const y4 = isMobile ? 980 : 850;
 
   const ctrlLeftX = (x2 + x1) / 2;
-  const ctrlRightX = isMobile ? (x1 + x3) / 2 : (x4 + x3) / 2;
-  const ctrlLeftY1 = y1 + (y2 - y1) * 0.4;
-  const ctrlRightY1 = y1 + (y3 - y1) * 0.4;
-  const ctrlLeftY2 = y2 + (y4 - y2) * 0.6;
-  const ctrlRightY2 = y3 + (y4 - y3) * 0.6;
+  const ctrlRightX = (x4 + x3) / 2;
+  const ctrlLeftY1 = isMobile ? y1 - 40 : y1 + (y2 - y1) * 0.4;
+  const ctrlRightY1 = isMobile ? y4 - 40 : y1 + (y3 - y1) * 0.4;
+  const ctrlLeftY2 = isMobile ? y2 + 20 : y2 + (y4 - y2) * 0.6;
+  const ctrlRightY2 = isMobile ? y3 + 20 : y3 + (y4 - y3) * 0.6;
   const [throttle, setThrottle] = useState(2); // Starts at idle 2%
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const lastScrollY = useRef(0);
@@ -490,21 +560,21 @@ export default function Home() {
     <div className="relative w-full overflow-x-hidden min-h-screen text-white bg-transparent animate-fade-in">
       
       {/* ============ SECTION 01: HERO — Strictly Polarized Layout ============ */}
-      <section className="relative w-full h-screen min-h-screen max-h-screen overflow-hidden pointer-events-auto flex flex-col justify-start" id="section-hero">
+      <section className="relative w-full h-screen min-h-screen max-h-screen overflow-hidden pointer-events-auto flex flex-col justify-start py-12 max-sm:py-[4rem]" id="section-hero">
         <EdgeChrome />
 
         {/* Vertical Center Container for industrial vertically stacked H1 */}
         <div 
           ref={topBlockRef}
-          className="absolute top-[120px] left-6 sm:left-[80px] z-20 pointer-events-none select-none max-w-[85vw] w-full mix-blend-difference"
+          className="absolute top-[120px] left-6 sm:left-[80px] z-20 pointer-events-none select-none max-w-[85vw] w-full mix-blend-difference flex flex-col items-start"
         >
           <h1 
-            className="text-h2 sm:text-display lg:text-hero text-white uppercase text-left"
+            className="font-industrial text-[46px] sm:text-[70px] md:text-[110px] lg:text-[130px] xl:text-[150px] text-white uppercase text-left m-0 drop-shadow-2xl scale-y-[1.1] origin-left opacity-95"
             style={{ 
-              lineHeight: '0.9',
-              letterSpacing: '-0.06em',
+              lineHeight: '0.85',
+              letterSpacing: '-0.04em',
               willChange: 'transform, opacity',
-              textShadow: '0 4px 24px rgba(0,0,0,0.4)',
+              textShadow: '0 4px 24px rgba(0,0,0,0.5)',
             }}
           >
             OWN THE <span className="text-[#E11D2A]">STREETS</span>
@@ -520,19 +590,7 @@ export default function Home() {
             
             {/* Left aligned high-contrast CTA */}
             <div className="pointer-events-auto">
-              <button 
-                onClick={() => {
-                  const lenis = (window as any).lenis;
-                  if (lenis) {
-                    lenis.scrollTo('#section-machine', { duration: 1.5 });
-                  } else {
-                    document.querySelector('#section-machine')?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-                className="btn-active-scale bg-[#E11D2A] text-white px-6 sm:px-8 py-3.5 sm:py-4 text-body font-black tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-300 shadow-[0_0_20px_rgba(225,29,42,0.3)] hover:shadow-none cursor-pointer"
-              >
-                EXPLORE MACHINE ⟶
-              </button>
+              <div className="px-6 sm:px-8 py-3.5 sm:py-4"></div>
             </div>
 
             {/* Right aligned minimal scroll indicator with 1px vertical growing red line */}
@@ -553,14 +611,14 @@ export default function Home() {
       </section>
 
       {/* ============ SECTION 02: ETHOS — Editorial ============ */}
-      <section className="relative w-full h-screen min-h-screen max-h-screen overflow-hidden pointer-events-auto flex flex-col justify-center bg-transparent animate-fade-in" id="section-ethos">
+      <section className="relative w-full h-screen min-h-screen max-h-screen overflow-hidden pointer-events-auto flex flex-col justify-start max-sm:py-[4rem] sm:pt-24 md:pt-32 bg-transparent animate-fade-in" id="section-ethos">
         <EdgeChrome />
 
         {/* Elevated content container with premium padding alignment */}
-        <div className="z-10 px-6 sm:px-12 md:px-16 lg:px-[80px] max-w-[1600px] mx-auto w-full flex flex-col lg:flex-row items-start justify-between gap-12 lg:gap-24">
+        <div className="z-10 px-6 sm:px-12 md:px-16 lg:px-[80px] max-w-[1600px] w-full flex flex-col lg:flex-row items-start justify-start gap-12 lg:gap-24">
           
           {/* Content — left column with vertical rule */}
-          <div ref={ethosRef} className="w-full lg:max-w-[500px] flex gap-6 sm:gap-8 opacity-0">
+          <div ref={ethosRef} className="w-full max-w-[800px] flex gap-6 sm:gap-8 opacity-0">
             
             {/* Vertical accent rule */}
             <div className="bar hidden sm:block w-[1px] min-h-[220px]" style={{
@@ -569,8 +627,8 @@ export default function Home() {
 
             <div className="flex-1 text-left">
               {/* Cascade Size Heading (H2 - Reverted to Solid Editorial Style) */}
-              <h2 className="font-anton text-h2 font-normal text-white uppercase tracking-wide drop-shadow-lg m-0 mb-6">
-                The Ethos.
+              <h2 className="font-industrial text-[40px] md:text-[64px] lg:text-[80px] font-black text-white uppercase tracking-tight drop-shadow-lg leading-none m-0 mb-6">
+                Ethos<span className="text-[#E11D2A]">.</span>
               </h2>
 
               <p className="font-sans text-body leading-[1.65] text-[#d8d3ca] font-medium max-w-[380px] mt-6 sm:mt-8 tracking-wide drop-shadow-[0_2px_14px_rgba(0,0,0,0.5)]">
@@ -578,7 +636,7 @@ export default function Home() {
                 e don't assemble bikes. We machine them from solid blocks of billet aluminum. We create uncompromised, performance-driven American V-Twins.
               </p>
 
-              {/* READ THE FULL STORY button */}
+              {/* READ THE FULL STORY button and path elements */}
               <div className="flex items-center gap-3 hover:gap-5 transition-all cursor-pointer group mt-8">
                 <h6 className="font-mono text-micro tracking-[0.4em] text-white font-bold uppercase transition-colors group-hover:text-red-500">
                   READ THE FULL STORY
@@ -590,102 +648,74 @@ export default function Home() {
 
           </div>
 
-          {/* Content — right column: creative technical telemetry specs list */}
-          <div className="hidden lg:flex flex-col items-start text-left w-full max-w-[260px] relative select-none pointer-events-none">
-            {/* Left accent vertical gradient line */}
-            <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-[#E11D2A] via-[#E11D2A]/40 to-transparent"></div>
-            
-            <div className="pl-6 space-y-6">
-              <div>
-                <h6 className="text-[#E11D2A] mb-1 font-bold">// WHEELBASE</h6>
-                <span className="font-heading text-h3 text-white uppercase block leading-none">68.0 IN</span>
-                <span className="font-sans text-body text-gray-400 block mt-1">1727 MM LENGTH</span>
-              </div>
-              <div>
-                <h6 className="text-[#E11D2A] mb-1 font-bold">// GEOMETRY</h6>
-                <span className="font-heading text-h3 text-white uppercase block leading-none">30° RAKE</span>
-                <span className="font-sans text-body text-gray-400 block mt-1">5.0 IN TRAIL</span>
-              </div>
-              <div>
-                <h6 className="text-[#E11D2A] mb-1 font-bold">// SUSPENSION</h6>
-                <span className="font-heading text-h3 text-white uppercase block leading-none">ÖHLINS FGRT</span>
-                <span className="font-sans text-body text-gray-400 block mt-1">48MM FORK TUBES</span>
-              </div>
-              <div>
-                <h6 className="text-[#E11D2A] mb-1 font-bold">// POWERPLANT</h6>
-                <span className="font-heading text-h3 text-white uppercase block leading-none">124 CI</span>
-                <span className="font-sans text-body text-gray-400 block mt-1">2032 CC ENGINE</span>
-              </div>
-            </div>
-          </div>
-
         </div>
 
       </section>
 
       {/* ============ SECTION 03: THE MACHINE — Editorial Specs ============ */}
-      <section className="relative w-full min-h-screen py-24 sm:py-32 px-6 sm:px-12 md:px-16 lg:px-[80px] max-w-[1600px] mx-auto flex flex-col justify-center pointer-events-auto" id="section-machine">
+      <section className="relative w-full h-screen min-h-screen max-h-screen overflow-hidden flex flex-col pointer-events-auto py-12 max-sm:py-[4rem]" id="section-machine">
         <EdgeChrome />
 
-        {/* Content grid aligned cleanly at the top */}
-        <div className="z-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-start">
-          
-          {/* Left Column: Bold Typography & Narrative */}
-          <div className="lg:col-span-6 flex flex-col items-start text-left">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E11D2A] animate-pulse"></span>
-              <h6 className="text-[#E11D2A] font-bold">[ SYSTEM_REVENANT // SEC_03 ]</h6>
+        {/* Content overlaid perfectly matching reference image positions */}
+        
+        {/* Top Left Liquid Glass Card */}
+        <div className="absolute top-[8%] sm:top-[15%] left-[4%] sm:left-[5%] md:top-[12%] md:left-[8%] lg:top-24 lg:left-12 xl:left-24 z-10 flex flex-col items-start text-left pointer-events-auto">
+          <div 
+            className="relative overflow-hidden bg-white/[0.02] border border-white/[0.1] p-5 sm:p-8 rounded-[24px] sm:rounded-[32px] flex flex-col gap-3 sm:gap-4 max-w-[280px] sm:max-w-[380px] hover:bg-white/[0.06] transition-all duration-500 cursor-pointer group"
+            style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.4)' }}
+          >
+            
+            {/* Apple Style Top Glossy Reflection */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-50 pointer-events-none rounded-[24px] sm:rounded-[32px]"></div>
+
+            <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-2xl bg-black/30 border border-white/20 shadow-inner mb-2 group-hover:scale-110 transition-transform duration-500 text-[#E11D2A]">
+              <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round" strokeLinecap="round" className="w-6 h-6 sm:w-8 sm:h-8 drop-shadow-md">
+                 <path d="M30 45 L38 20 L62 20 L70 45 Z" />
+                 <path d="M15 80 L25 50 L45 50 L55 80 Z" />
+                 <path d="M45 80 L55 50 L75 50 L85 80 Z" />
+              </svg>
             </div>
-            
-            <h2 className="font-anton text-display sm:text-hero text-white uppercase tracking-tighter leading-none m-0 mb-8">
-              THE<br />MACHINE.
-            </h2>
-            
-            <p className="font-sans text-body text-gray-300 leading-relaxed max-w-[480px]">
-              Every mounting point, load path, and structural rib is machined from solid blocks of aerospace-grade 6061-T6 aluminum. Engineered to absorb high torsional stress, our chassis delivers absolute high-speed tracking stability and uncompromising feedback from the front fork to the rear contact patch. This is metal, refined to perform.
+            <h4 className="relative font-industrial text-[28px] sm:text-[40px] text-white uppercase tracking-wide leading-none m-0 shadow-sm">
+              CHASSIS<span className="text-[#E11D2A]">.</span>
+            </h4>
+            <p className="relative font-sans text-sm sm:text-base text-[#e0e0e0] font-medium leading-[1.6]">
+              Billet aluminum components designed to serve multiple functions are employed to provide a rigid and more dynamic ride.
             </p>
           </div>
-
-          {/* Right Column: Static structured telemetry specs */}
-          <div className="lg:col-span-6 w-full flex flex-col gap-6 sm:gap-8">
-            <div className="border border-white/5 bg-black/45 backdrop-blur-md p-6 sm:p-8 relative select-none">
-              {/* Corner brackets */}
-              <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#E11D2A]"></div>
-              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#E11D2A]"></div>
-              
-              <h3 className="font-anton text-h3 text-white uppercase tracking-wider mb-6 pb-2 border-b border-white/10">
-                TECHNICAL SPECIFICATIONS
-              </h3>
-
-              <div className="flex flex-col gap-5">
-                {[
-                  { id: "01", label: "POWERPLANT", val: "124CI DOWNDRAFT V-TWIN" },
-                  { id: "02", label: "CHASSIS", val: "CNC MACH 6061-T6 BILLET" },
-                  { id: "03", label: "FRONT FORKS", val: "ÖHLINS FGRT SERIES 48MM" },
-                  { id: "04", label: "REAR SUSPENSION", val: "PRO-LINK ÖHLINS MONOSHOCK" },
-                  { id: "05", label: "EXHAUST", val: "PROPRIETARY TITANIUM 2-IN-1" },
-                ].map((spec) => (
-                  <div key={spec.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline border-b border-white/5 pb-3">
-                    <div className="flex items-baseline gap-2 mb-1 sm:mb-0">
-                      <h6 className="text-[#E11D2A] font-bold">// {spec.id}</h6>
-                      <span className="font-sans text-body font-bold text-gray-400 tracking-wide uppercase">
-                        {spec.label}
-                      </span>
-                    </div>
-                    <span className="font-anton text-h3 text-white">
-                      {spec.val}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
         </div>
+
+        {/* Bottom Right Liquid Glass Card */}
+        <div className="absolute bottom-[5%] sm:bottom-[10%] right-[4%] sm:right-[5%] md:bottom-[15%] md:right-[8%] lg:bottom-16 lg:right-12 xl:right-24 z-10 flex flex-col items-start sm:items-end text-left sm:text-right pointer-events-auto">
+          <div 
+            className="relative overflow-hidden bg-white/[0.02] border border-white/[0.1] p-5 sm:p-8 rounded-[24px] sm:rounded-[32px] flex flex-col items-start sm:items-end gap-3 sm:gap-4 max-w-[280px] sm:max-w-[380px] hover:bg-white/[0.06] transition-all duration-500 cursor-pointer group"
+            style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.05), 0 8px 32px rgba(0, 0, 0, 0.4)' }}
+          >
+            
+            {/* Apple Style Top Glossy Reflection */}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-50 pointer-events-none rounded-[24px] sm:rounded-[32px]"></div>
+
+            <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-2xl bg-black/30 border border-white/20 shadow-inner mb-2 group-hover:scale-110 transition-transform duration-500 text-[#E11D2A]">
+              <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="6" strokeLinejoin="round" strokeLinecap="round" className="w-6 h-6 sm:w-8 sm:h-8 drop-shadow-md">
+                 <circle cx="50" cy="65" r="16" />
+                 <path d="M36 50 L18 20 L40 10 L52 48" />
+                 <path d="M64 50 L82 20 L60 10 L48 48" />
+                 <path d="M10 25 L25 15" strokeWidth="8"/>
+                 <path d="M90 25 L75 15" strokeWidth="8"/>
+              </svg>
+            </div>
+            <h4 className="relative font-industrial text-[28px] sm:text-[40px] text-white uppercase tracking-wide leading-none m-0 shadow-sm">
+              POWERTRAIN<span className="text-[#E11D2A]">.</span>
+            </h4>
+            <p className="relative font-sans text-sm sm:text-base text-[#e0e0e0] font-medium leading-[1.6]">
+              American-made 124ci ARCH / S&S V-Twin is tuned for high torque making the KRGT-1 the ultimate street machine.
+            </p>
+          </div>
+        </div>
+
       </section>
 
           {/* ============ SECTION 04: THE NUMBERS — Desktop & Mobile HUD Layout ============ */}
-      <section className="relative w-full h-[100vh] min-h-[100vh] max-h-[100vh] overflow-hidden pointer-events-auto flex flex-col justify-center bg-transparent" id="section-specs">
+      <section className="relative w-full h-[100vh] min-h-[100vh] max-h-[100vh] overflow-hidden pointer-events-auto flex flex-col justify-center bg-transparent py-12 max-sm:py-[4rem]" id="section-specs">
         <EdgeChrome />
 
         {/* Custom inline styles for futuristic concentric arc animations */}
@@ -714,36 +744,15 @@ export default function Home() {
         `}} />
 
         {/* ============ HIGH-FIDELITY HUD DECORATIONS & ALIGNMENT LABELS ============ */}
-        {/* Top Header stats overlay ribbon (faithfully matching screenshot) */}
-        <div className="absolute top-8 left-8 right-8 flex justify-between items-start z-25 pointer-events-none text-white/30 select-none font-mono uppercase tracking-[0.35em] border-b border-white/[0.04] pb-4">
-          <div className="flex flex-col gap-1 text-left">
-            <h6 className="text-white font-black text-nano">KROT-1 // SYSTEM INTERFACE</h6>
-            <h6 className="text-white/20 text-nano tracking-widest">CALIBRATION: STABLE</h6>
-          </div>
-          <div className="flex flex-col items-end text-right">
-            <h6 className="text-white/40 font-bold text-nano">V.01.25</h6>
+
+        {/* Desktop & Mobile Title - Top and Left Aligned */}
+        <div className="absolute top-0 left-0 px-6 pt-12 sm:pt-24 sm:px-12 md:px-16 lg:px-[80px] lg:pt-[100px] z-20 text-left flex flex-col items-start justify-start pointer-events-none">
+          <div className="relative flex flex-col items-start">
+            <h2 className="font-industrial text-[40px] md:text-[64px] lg:text-[80px] text-white uppercase tracking-tight font-black leading-none m-0" style={{ letterSpacing: '-0.02em' }}>
+              NUMBERS<span className="text-[#E11D2A]">.</span>
+            </h2>
           </div>
         </div>
-
-        {/* Desktop Title - Top and Left Aligned (same size and design) */}
-        {!isMobile && (
-          <div className="absolute top-28 left-8 sm:left-[80px] z-20 text-left flex flex-col items-start justify-start p-4">
-            <h6 className="font-mono text-nano text-[#E11D2A] tracking-[0.45em] font-black select-none uppercase block mb-3">
-              BILLET SPEC SHEET
-            </h6>
-            <div className="relative flex flex-col items-start">
-              <div className="flex items-start justify-start mb-0.5">
-                <span className="font-industrial text-h3 sm:text-h2 text-white leading-none tracking-wide font-black uppercase">
-                  THE
-                </span>
-              </div>
-              <h2 className="font-industrial text-h2 sm:text-display text-white uppercase tracking-tight font-black leading-none m-0" style={{ letterSpacing: '-0.02em' }}>
-                NUMBERS<span className="text-[#E11D2A]">.</span>
-              </h2>
-            </div>
-            <div className="w-10 h-[2.5px] bg-[#E11D2A] mt-5 shadow-[0_0_8px_#E11D2A]"></div>
-          </div>
-        )}
 
         {/* ============ HUD CONTENT CONTAINER (FLUID SCALABLE HUD CROWN) ============ */}
         <div className="z-10 h-full px-2 sm:px-4 max-w-[1600px] mx-auto w-full flex flex-col justify-center items-center mt-6 lg:mt-0">
@@ -752,7 +761,7 @@ export default function Home() {
           <div 
             className="relative overflow-visible flex items-center justify-center w-full"
             style={{
-              height: `${700 * scale}px`,
+              height: `${trueBodyHeight * scale}px`,
               width: '100%',
             }}
           >
@@ -767,126 +776,23 @@ export default function Home() {
               }}
             >
               
-              {/* ============ SVG ARCHED CONNECTING LINES ============ */}
-              <div className="absolute inset-0 z-0 pointer-events-none select-none opacity-40">
-                <svg className="w-full h-full" viewBox={`0 0 ${trueBodyWidth} ${trueBodyHeight}`} fill="none" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="hud-connecting-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="rgba(225,29,42,0.02)" />
-                      <stop offset="30%" stopColor="rgba(225,29,42,0.45)" />
-                      <stop offset="50%" stopColor="#E11D2A" />
-                      <stop offset="70%" stopColor="rgba(225,29,42,0.45)" />
-                      <stop offset="100%" stopColor="rgba(225,29,42,0.02)" />
-                    </linearGradient>
-                  </defs>
-                              {isMobile ? (
-                    <>
-                      {/* Symmetrical Parabolic HUD curves linking the dials exactly like in reference screenshot */}
-                      {/* 01 is top center, 02 is left wing, 03 is right wing, 04 is center lower */}
-                      {/* Left group connecting line */}
-                      <path d={`M ${x2},${y2} Q ${ctrlLeftX},${ctrlLeftY1} ${x1},${y1}`} stroke="url(#hud-connecting-gradient)" strokeWidth="0.85" strokeDasharray="3 4" />
-                      
-                      {/* Right group connecting line */}
-                      <path d={`M ${x4},${y4} Q ${ctrlRightX},${ctrlRightY2} ${x3},${y3}`} stroke="url(#hud-connecting-gradient)" strokeWidth="0.85" strokeDasharray="3 4" />
-
-                      {/* Symmetrical connecting lines across center */}
-                      <path d={`M ${x1},${y1} Q ${ctrlRightX},${ctrlRightY1} ${x3},${y3}`} stroke="url(#hud-connecting-gradient)" strokeWidth="0.85" strokeDasharray="3 4" />
-                      <path d={`M ${x2},${y2} Q ${ctrlLeftX},${ctrlLeftY2} ${x4},${y4}`} stroke="url(#hud-connecting-gradient)" strokeWidth="0.85" strokeDasharray="3 4" />
-                      
-                      {/* Symmetrical central axis divider lines */}
-                      <line x1="400" y1="10" x2="400" y2="530" stroke="rgba(225, 29, 42, 0.2)" strokeWidth="0.75" strokeDasharray="5 12" />
-
-                      {/* Symmetrical angled leader lines dropping from dials into the physical bike coordinates */}
-                      <path d={`M ${x2},${y2} L ${x2 + 25},${y2 + 50} L ${x2 + 90},${y2 + 140}`} stroke="rgba(255, 255, 255, 0.22)" strokeWidth="0.7" strokeDasharray="2 3" />
-                      <circle cx={x2 + 90} cy={y2 + 140} r="2.2" fill="#E11D2A" />
-
-                      <path d={`M ${x3},${y3} L ${x3 - 25},${y3 + 50} L ${x3 - 90},${y3 + 140}`} stroke="rgba(255, 255, 255, 0.22)" strokeWidth="0.7" strokeDasharray="2 3" />
-                      <circle cx={x3 - 90} cy={y3 + 140} r="2.2" fill="#E11D2A" />
-                    </>
-                  ) : (
-                    <>
-                      {/* Single curve matching the desktop HUD arc */}
-                      <path d={`M ${x1},${y1} C 1320,150 1320,390 ${x4},${y4}`} stroke="url(#hud-connecting-gradient)" strokeWidth="0.85" strokeDasharray="3 4" />
-                    </>
-                  )}
-
-                  {/* Core indicator intersection dots */}
-                  <circle cx={x1} cy={y1} r="2.8" fill="#E11D2A" />
-                  <circle cx={x2} cy={y2} r="2.8" fill="#E11D2A" />
-                  <circle cx={x3} cy={y3} r="2.8" fill="#E11D2A" />
-                  <circle cx={x4} cy={y4} r="2.8" fill="#E11D2A" />
-                </svg>
-              </div>
-              
-              {/* Dial 01: DRY WEIGHT (Centered at the absolute apex, styled perfectly) */}
-              <div className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${x1}px`, top: `${y1}px` }}>
-                <HUDStat 
-                  end={436} 
-                  suffix="LBS" 
-                  label="DRY WEIGHT" 
-                  num="01" 
-                  accent={accent} 
-                  delay={0.1} 
-                  max={600} 
-                />
-              </div>
-
-              {/* Dial 02: REAR-WHEEL POWER (Upper Left Wing flanking 01, lower depth) */}
-              <div className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${x2}px`, top: `${y2}px` }}>
-                <HUDStat 
-                  end={122} 
-                  suffix="HP" 
-                  label="REAR-WHEEL POWER" 
-                  num="02" 
-                  accent={accent} 
-                  delay={0.25} 
-                  max={488} 
-                />
-              </div>
-
-              {/* Dial 03: MAX TORQUE (Upper Right Wing flanking 01, lower depth) */}
-              <div className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${x3}px`, top: `${y3}px` }}>
-                <HUDStat 
-                  end={115} 
-                  suffix="LB·FT" 
-                  label="MAX TORQUE" 
-                  num="03" 
-                  accent={accent} 
-                  delay={0.4} 
-                  max={460} 
-                />
-              </div>
-
-              {/* Dial 04: IQ SCORE (Lower center relative console, creates perfect depth arch under 01) */}
-              <div className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${x4}px`, top: `${y4}px` }}>
-                <HUDStat 
-                  end={85} 
-                  suffix="IQ" 
-                  label="IQ SCORE" 
-                  num="04" 
-                  accent={accent} 
-                  delay={0.55} 
-                  max={340} 
-                />
-              </div>
-
-              {/* CENTER FUEL TANK TARGET CIRCLE - Mobile Only */}
+              {/* CENTER FUEL TANK TARGET CIRCLE - Mobile Only (Behind numbers) */}
               {isMobile && (
                 <div 
-                  className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center w-[460px] h-[460px] select-none pointer-events-none z-10"
-                  style={{ top: '360px' }}
+                  className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center w-[460px] h-[460px] select-none pointer-events-none -z-10"
+                  style={{ top: '650px' }}
                 >
                   
                   {/* Reticle system */}
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-                    <svg className="w-full h-full p-2 relative z-5" viewBox="0 0 500 500" fill="none">
+                    <svg className="w-full h-full p-2 relative z-0" viewBox="0 0 500 500" fill="none">
                       
                       {/* Outer subtle ticks */}
                       <circle cx="250" cy="250" r="215" stroke="rgba(225,29,42,0.15)" strokeWidth="0.8" strokeDasharray="4 8" />
                       
                       {/* Interactive spinning concentric tech rings */}
-                      <circle cx="250" cy="250" r="195" stroke="#E11D2A" strokeWidth="1" strokeDasharray="2 12" className="origin-center" opacity="0.65" />
-                      <circle cx="250" cy="250" r="190" stroke="#E11D2A" strokeWidth="1.5" strokeDasharray="150 40 20 40" className="origin-center" opacity="0.45" />
+                      <circle cx="250" cy="250" r="195" stroke="#E11D2A" strokeWidth="1" strokeDasharray="2 12" className="origin-center animate-spin-slow" opacity="0.65" />
+                      <circle cx="250" cy="250" r="190" stroke="#E11D2A" strokeWidth="1.5" strokeDasharray="150 40 20 40" className="origin-center animate-spin-counter" opacity="0.45" />
                       <circle cx="250" cy="250" r="180" stroke="rgba(255, 255, 255, 0.04)" strokeWidth="1" />
                       
                       {/* Corner alignment crosshairs inside the reticle */}
@@ -901,41 +807,96 @@ export default function Home() {
 
                     </svg>
                   </div>
-
-                  {/* Typography perfectly aligned in the center of the transparent target reticle */}
-                  <div className="relative z-10 text-center flex flex-col items-center justify-center p-4">
-                    
-                    <h6 className="font-mono text-nano text-[#E11D2A] tracking-[0.45em] font-black select-none uppercase block mb-3">
-                      BILLET SPEC SHEET
-                    </h6>
-
-                    <div className="relative flex flex-col items-center">
-                      
-                      <div className="flex items-center justify-center mb-0.5">
-                        {/* Large "THE" */}
-                        <span className="font-industrial text-h3 sm:text-h2 text-white leading-none tracking-wide font-black uppercase">
-                          THE
-                        </span>
-                      </div>
-
-                      {/* Giant "NUMBERS." */}
-                      <h2 className="font-industrial text-h2 sm:text-display text-white uppercase tracking-tight font-black leading-none m-0" style={{ letterSpacing: '-0.02em' }}>
-                        NUMBERS<span className="text-[#E11D2A]">.</span>
-                      </h2>
-
-                    </div>
-
-                    {/* Bottom Red dash separator line */}
-                    <div className="w-10 h-[2.5px] bg-[#E11D2A] mt-5 shadow-[0_0_8px_#E11D2A]"></div>
-
-                  </div>
-
                 </div>
               )}
 
-            </div>
-          </div>
+              {/* ============ SVG ARCHED CONNECTING LINES ============ */}
+              <div className="absolute inset-0 z-0 pointer-events-none select-none opacity-40">
+                <svg className="w-full h-full" viewBox={`0 0 ${trueBodyWidth} ${trueBodyHeight}`} fill="none" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="hud-connecting-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="rgba(225,29,42,0.02)" />
+                      <stop offset="30%" stopColor="rgba(225,29,42,0.45)" />
+                      <stop offset="50%" stopColor="#E11D2A" />
+                      <stop offset="70%" stopColor="rgba(225,29,42,0.45)" />
+                      <stop offset="100%" stopColor="rgba(225,29,42,0.02)" />
+                    </linearGradient>
+                  </defs>
+                  {isMobile ? (
+                    <>
+                      {/* Symmetrical HUD paths connecting centers */}
+                      <path d={`M ${x1},${y1} L ${x4},${y4} L ${x3},${y3} L ${x2},${y2}`} stroke="url(#hud-connecting-gradient)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.5" />
+                      <path d={`M ${x1},${y1} Q 360,600 ${x2},${y2}`} stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="2 3" />
+                    </>
+                  ) : (
+                    <>
+                      {/* Symmetrical HUD connecting lines for desktop */}
+                      <path d={`M ${x1},${y1} L ${x4},${y4} L ${x3},${y3} L ${x2},${y2}`} stroke="url(#hud-connecting-gradient)" strokeWidth="1.5" strokeDasharray="4 6" opacity="0.6" />
+                      <path d={`M ${x1},${y1} Q 800,450 ${x2},${y2}`} stroke="rgba(255,255,255,0.05)" strokeWidth="1" strokeDasharray="2 3" />
+                    </>
+                  )}
 
+                  {/* Core indicator intersection dots */}
+                  <circle cx={x1} cy={y1} r="2.8" fill="#E11D2A" />
+                  <circle cx={x2} cy={y2} r="2.8" fill="#E11D2A" />
+                  <circle cx={x3} cy={y3} r="2.8" fill="#E11D2A" />
+                  <circle cx={x4} cy={y4} r="2.8" fill="#E11D2A" />
+                </svg>
+              </div>
+              
+              {/* Dial 01: DRY WEIGHT (Centered at the absolute apex, styled perfectly) */}
+              <div className="absolute transition-transform" style={{ left: `${x1}px`, top: `${y1}px`, transform: `translate(-50%, -50%) ${isMobile ? 'scale(0.65)' : 'scale(1)'}` }}>
+                <HUDStat 
+                  end={436} 
+                  suffix="LBS" 
+                  label="DRY WEIGHT" 
+                  num="01" 
+                  accent={accent} 
+                  delay={0.1} 
+                  max={600} 
+                />
+              </div>
+
+              {/* Dial 02: REAR-WHEEL POWER (Upper Left Wing flanking 01, lower depth) */}
+              <div className="absolute transition-transform" style={{ left: `${x2}px`, top: `${y2}px`, transform: `translate(-50%, -50%) ${isMobile ? 'scale(0.65)' : 'scale(1)'}` }}>
+                <HUDStat 
+                  end={122} 
+                  suffix="HP" 
+                  label="REAR-WHEEL POWER" 
+                  num="02" 
+                  accent={accent} 
+                  delay={0.25} 
+                  max={488} 
+                />
+              </div>
+
+              {/* Dial 03: MAX TORQUE (Upper Right Wing flanking 01, lower depth) */}
+              <div className="absolute transition-transform" style={{ left: `${x3}px`, top: `${y3}px`, transform: `translate(-50%, -50%) ${isMobile ? 'scale(0.65)' : 'scale(1)'}` }}>
+                <HUDStat 
+                  end={115} 
+                  suffix="LB·FT" 
+                  label="MAX TORQUE" 
+                  num="03" 
+                  accent={accent} 
+                  delay={0.4} 
+                  max={460} 
+                />
+              </div>
+
+              {/* Dial 04: IQ SCORE (Lower center relative console, creates perfect depth arch under 01) */}
+              <div className="absolute transition-transform" style={{ left: `${x4}px`, top: `${y4}px`, transform: `translate(-50%, -50%) ${isMobile ? 'scale(0.65)' : 'scale(1)'}` }}>
+                <HUDStat 
+                  end={85} 
+                  suffix="IQ" 
+                  label="IQ SCORE" 
+                  num="04" 
+                  accent={accent} 
+                  delay={0.55} 
+                  max={340} 
+                />
+              </div>
+          </div>
+        </div>
         </div>
 
       </section>
